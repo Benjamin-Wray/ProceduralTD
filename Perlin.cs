@@ -6,12 +6,12 @@ namespace ProceduralTD
 {
     internal class Perlin
     {
+        //permutation table (array of values from 0-255 in random order)
+        private readonly int[] _pt;
         private const int PTableLength = 256;
 
-        private readonly int[] _pt;
-
-        //array of pseudorandom vectors
-        private readonly Vector2[] _gradients =
+        //array of vectors that will be selected pseudorandomly
+        private readonly Vector2[] _gradientVectors =
         {
             new Vector2(1, 0),
             new Vector2(0, 1),
@@ -45,52 +45,53 @@ namespace ProceduralTD
         {
             //find the unit square our coordinate is in
             // & PTableLength-1 makes sure the values are within the range of the permutation table
-            int squareX = (int)Math.Floor(x) & PTableLength-1; 
-            int squareY = (int)Math.Floor(y) & PTableLength-1;
+            int squareX = (int)Math.Floor(x) % PTableLength; 
+            int squareY = (int)Math.Floor(y) % PTableLength;
 
-            //calculate x and y coordinates within unit square
+            //calculate x and y coordinates within unit square (we will use these for our distance vectors when calculating dot products)
             x -= (float)Math.Floor(x);
             y -= (float)Math.Floor(y);
 
             //select 4 pseudorandom vectors from permutation table using corners of unit square
-            Vector2 v00 = _gradients[_pt[_pt[squareX] + squareY] % _gradients.Length];
-            Vector2 v01 = _gradients[_pt[_pt[squareX] + squareY+1] % _gradients.Length];
-            Vector2 v10 = _gradients[_pt[_pt[squareX+1] + squareY] % _gradients.Length];
-            Vector2 v11 = _gradients[_pt[_pt[squareX+1] + squareY+1] % _gradients.Length];
+            Vector2 v00 = _gradientVectors[_pt[_pt[squareX] + squareY] % _gradientVectors.Length];
+            Vector2 v01 = _gradientVectors[_pt[_pt[squareX] + squareY+1] % _gradientVectors.Length];
+            Vector2 v10 = _gradientVectors[_pt[_pt[squareX+1] + squareY] % _gradientVectors.Length];
+            Vector2 v11 = _gradientVectors[_pt[_pt[squareX+1] + squareY+1] % _gradientVectors.Length];
 
-            //find the dot products of the pseudorandom vectors and the vectors of  
+            //find the dot products of the pseudorandom vectors and the distance vectors (vectors of the corners of the square to the point)
             float dot00 = Vector2.Dot(v00, new Vector2(x, y));
-            float dot01 = Vector2.Dot(v01, new Vector2(x, 1-y));
-            float dot10 = Vector2.Dot(v10, new Vector2(1-x, y));
-            float dot11 = Vector2.Dot(v11, new Vector2(1-x, 1-y));
+            float dot01 = Vector2.Dot(v01, new Vector2(x, y-1));
+            float dot10 = Vector2.Dot(v10, new Vector2(x-1, y));
+            float dot11 = Vector2.Dot(v11, new Vector2(x-1, y-1));
 
-            //smooth x and y coordinates by applying them to fade function for interpolation later
+            //smooth x and y values by applying them to fade function for interpolation
             float smoothedX = Fade(x);
             float smoothedY = Fade(y);
             
+            //linearly interpolates between our dot products using the smoothed values
+            float x0 = Lerp(dot00, dot01, smoothedY);
+            float x1 = Lerp(dot10, dot11, smoothedY);
+            float noiseValue = Lerp(x0, x1, smoothedX);
             
-            float x1 = Lerp(dot00, dot01, smoothedX);
-            float x2 = Lerp(dot10, dot11, smoothedX);
-
-            float noiseValue = Lerp(x1, x2, smoothedY);
-            
+            //our final value will be in the range -1.0 - 1.0 so we normalise it to 0.0 - 1.0 before returning
             return Normalise(noiseValue, -1, 1);
         }
-
+        
         //applies value to the function 6t^5 - 15t^4 + 10t^3
-        private float Fade(float t)
+        //this is used to make interpolation smoother
+        private static float Fade(float t)
         {
-            return (float) (6 * Math.Pow(t, 5) - 15 * Math.Pow(t, 4) + 10 * Math.Pow(t, 3));
+            return (float)(6 * Math.Pow(t, 5) - 15 * Math.Pow(t, 4) + 10 * Math.Pow(t, 3));
         }
         
-        //Linear interpolation
-        private float Lerp(float dot1, float dot2, float smoothed)
+        //linearly interpolates between two dot products using smoothed value from the fade function
+        private static float Lerp(float dot1, float dot2, float smoothed)
         {
             return dot1 + smoothed * (dot2 - dot1);
         }
 
         //normalises value in the range 0.0 - 1.0
-        private float Normalise(float x, float min, float max)
+        private static float Normalise(float x, float min, float max)
         {
             return (x - min) / (max - min);
         }
