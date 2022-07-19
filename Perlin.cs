@@ -4,14 +4,14 @@ using Microsoft.Xna.Framework;
 
 namespace ProceduralTD
 {
-    internal class Perlin
+    internal static class Perlin
     {
-        //permutation table (array of values from 0-255 in random order)
-        private readonly int[] _pt;
+        //permutation table (array of values from 0 to 255 used for selecting gradient vectors pseudorandomly)
+        private static int[] _pt;
         private const int PTableLength = 256;
 
         //array of vectors that will be selected pseudorandomly
-        private readonly Vector2[] _gradientVectors =
+        private static readonly Vector2[] GradientVectors =
         {
             new Vector2(1, 0),
             new Vector2(0, 1),
@@ -22,12 +22,6 @@ namespace ProceduralTD
             new Vector2(-1, 1),
             new Vector2(-1, -1)
         };
-
-        public Perlin(int seed)
-        {
-            //create the permutation table we will use to select pseudorandom vectors
-            _pt = GeneratePermutationTable(seed);
-        }
         
         private static int[] GeneratePermutationTable(int seed)
         {
@@ -41,7 +35,69 @@ namespace ProceduralTD
             return pt;
         }
 
-        internal float Noise(float x, float y)
+        internal static float[,] GenerateNoiseMap(int width, int height, float noiseScale, int octaves, float lacunarity, float persistence, int seed)
+        {
+            //creates a permutation table from seed
+            _pt = GeneratePermutationTable(seed);
+
+            //creates an empty noise map
+            float[,] noiseMap = new float[width, height]; 
+            
+            //we record the lowest and highest values in the noise map so we can normalise them between 0.0 and 1.0
+            float minValue = float.MaxValue;
+            float maxValue = float.MinValue;
+            
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    //generate noise with octaves
+                    float noise = OctaveNoise(x * noiseScale, y * noiseScale, octaves, lacunarity, persistence);
+                    noiseMap[x, y] = noise;                    
+                    
+                    //update min and max values
+                    if (noise < minValue) minValue = noise;
+                    if (noise > maxValue) maxValue = noise;
+                }
+            }
+            
+            //normalise values in noise map
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    noiseMap[x, y] = Normalise(noiseMap[x, y], minValue, maxValue);
+                }
+            }
+
+            return noiseMap;
+        }
+
+        //generate perlin noise in octaves
+        private static float OctaveNoise(float x, float y, int octaves, float lacunarity, float persistence)
+        {
+            //initial values for frequency and amplitude
+            float frequency = 1;
+            float amplitude = 1;
+            
+            //initial value of the generated noise
+            float noiseValue = 0;
+            
+            //loop through octaves 
+            for (int octave = 0; octave < octaves; octave++)
+            {
+                //generate noise
+                noiseValue += Noise(x * frequency, y * frequency) * amplitude;
+                
+                //update values for frequency and amplitude
+                frequency *= lacunarity;
+                amplitude *= persistence;
+            }
+            
+            return noiseValue;
+        }
+
+        private static float Noise(float x, float y)
         {
             //find the unit square our coordinate is in
             // & PTableLength-1 makes sure the values are within the range of the permutation table
@@ -53,10 +109,10 @@ namespace ProceduralTD
             y -= (float)Math.Floor(y);
 
             //select 4 pseudorandom vectors from permutation table using corners of unit square
-            Vector2 v00 = _gradientVectors[_pt[_pt[squareX] + squareY] % _gradientVectors.Length];
-            Vector2 v01 = _gradientVectors[_pt[_pt[squareX] + squareY+1] % _gradientVectors.Length];
-            Vector2 v10 = _gradientVectors[_pt[_pt[squareX+1] + squareY] % _gradientVectors.Length];
-            Vector2 v11 = _gradientVectors[_pt[_pt[squareX+1] + squareY+1] % _gradientVectors.Length];
+            Vector2 v00 = GradientVectors[_pt[_pt[squareX] + squareY] % GradientVectors.Length];
+            Vector2 v01 = GradientVectors[_pt[_pt[squareX] + squareY+1] % GradientVectors.Length];
+            Vector2 v10 = GradientVectors[_pt[_pt[squareX+1] + squareY] % GradientVectors.Length];
+            Vector2 v11 = GradientVectors[_pt[_pt[squareX+1] + squareY+1] % GradientVectors.Length];
 
             //find the dot products of the pseudorandom vectors and the distance vectors (vectors of the corners of the square to the point)
             float dot00 = Vector2.Dot(v00, new Vector2(x, y));
@@ -73,8 +129,7 @@ namespace ProceduralTD
             float x1 = Lerp(dot10, dot11, smoothedY);
             float noiseValue = Lerp(x0, x1, smoothedX);
             
-            //our final value will be in the range -1.0 - 1.0 so we normalise it to 0.0 - 1.0 before returning
-            return Normalise(noiseValue, -1, 1);
+            return noiseValue;
         }
         
         //applies value to the function 6t^5 - 15t^4 + 10t^3
@@ -89,7 +144,7 @@ namespace ProceduralTD
         {
             return dot1 + smoothed * (dot2 - dot1);
         }
-
+        
         //normalises value in the range 0.0 - 1.0
         private static float Normalise(float x, float min, float max)
         {
