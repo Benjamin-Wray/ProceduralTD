@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace ProceduralTD
 {
-    internal static class Perlin
+    internal static class MapGenerator
     {
         //permutation table (array of values from 0 to 255 used for selecting gradient vectors pseudorandomly)
         private const int PTableLength = 256;
@@ -23,22 +24,24 @@ namespace ProceduralTD
         };
         
         //values for map generation
-        private const float NoiseScale = 0.007f; //how "zoomed in" the noise is
+        internal const int MapWidth = 800;
+        internal const int MapHeight = 800;
+        private const float NoiseScale = .01f; //how "zoomed in" the noise is
         private const int Octaves = 4; //how many times noise will be generated and layered on top of each other
         private const float Lacunarity = 2; //this is multiplied by the frequency of the noise every octave
         private const float Persistence = .5f; //this is multiplied by the amplitude of the noise every octave
 
-        internal static float[,] GenerateNoiseMap(int width, int height, int seed = 0)
+        internal static float[,] GenerateNoiseMap(int seed = 0)
         {
             //creates a permutation table from seed
             int[] pt = GeneratePermutationTable(seed);
 
             //creates an empty noise map
-            float[,] noiseMap = new float[width, height];
+            float[,] noiseMap = new float[MapWidth, MapHeight];
             
-            for (int y = 0; y < height; y++)
+            for (int y = 0; y < MapHeight; y++)
             {
-                for (int x = 0; x < width; x++)
+                for (int x = 0; x < MapWidth; x++)
                 {
                     //generate noise with octaves
                     float noiseValue = OctaveNoise(x * NoiseScale, y * NoiseScale, pt);
@@ -143,14 +146,16 @@ namespace ProceduralTD
             float minNoiseValue = noiseMap.Cast<float>().Min();
             float maxNoiseValue = noiseMap.Cast<float>().Max();
             
-            for (int y = 0; y < noiseMap.GetLength(0); y++)
+            for (int y = 0; y < noiseMap.GetLength(1); y++)
             {
-                for (int x = 0; x < noiseMap.GetLength(1); x++)
+                for (int x = 0; x < noiseMap.GetLength(0); x++)
                 {
                     //generate noise with octaves
                     noiseMap[x, y] = Normalize(noiseMap[x, y], minNoiseValue, maxNoiseValue);
                 }
             }
         }
+
+        
     }
 }
