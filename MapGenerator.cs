@@ -23,9 +23,10 @@ namespace ProceduralTD
         };
         
         //values for map generation
-        internal const int MapWidth = 800;
-        internal const int MapHeight = 800;
-        private const float NoiseScale = .01f; //how "zoomed in" the noise is
+        private const int MapScale = 6;
+        internal const int MapWidth = Camera.CameraWidth * MapScale;
+        internal const int MapHeight = Camera.CameraHeight * MapScale;
+        private const float NoiseScale = .008f; //how "zoomed in" the noise is
         private const int Octaves = 4; //how many times noise will be generated and layered on top of each other
         private const float Lacunarity = 2; //this is multiplied by the frequency of the noise every octave
         private const float Persistence = .5f; //this is multiplied by the amplitude of the noise every octave
@@ -43,8 +44,7 @@ namespace ProceduralTD
                 for (int x = 0; x < MapWidth; x++)
                 {
                     //generate noise with octaves
-                    float noiseValue = OctaveNoise(x * NoiseScale, y * NoiseScale, pt);
-                    noiseMap[x, y] = noiseValue;
+                    noiseMap[x, y] = OctaveNoise(x * NoiseScale, y * NoiseScale, pt);
                 }
             }
 
@@ -77,10 +77,8 @@ namespace ProceduralTD
                 float frequency = (float)Math.Pow(Lacunarity, octave);
                 float amplitude = (float)Math.Pow(Persistence, octave);
                 
-                //generate noise
-                float noise = Noise(x * frequency, y * frequency, pt) * amplitude;
-                
-                noiseValue += noise;
+                //generate noise and add it to the total noise value
+                noiseValue += Noise(x * frequency, y * frequency, pt) * amplitude;
             }
             
             return noiseValue;
@@ -89,9 +87,9 @@ namespace ProceduralTD
         private static float Noise(float x, float y, int[] pt)
         {
             //find the unit square our coordinate is in
-            // & PTableLength-1 makes sure the values are within the range of the permutation table
-            int squareX = (int)Math.Floor(x) & PTableLength-1;
-            int squareY = (int)Math.Floor(y) & PTableLength-1;
+            // & PTableLength-1 makes sure the values are within the range of the permutation table (0-255)
+            int squareX = (int)Math.Floor(x) % PTableLength;
+            int squareY = (int)Math.Floor(y) % PTableLength;
 
             //calculate x and y coordinates within unit square (we will use these for our distance vectors when calculating dot products)
             x -= (float)Math.Floor(x);
@@ -135,13 +133,14 @@ namespace ProceduralTD
         }
         
         //normalises value in the range 0.0 - 1.0
-        private static float Normalize(float x, float min, float max)
+        private static float Normalize(float value, float min, float max)
         {
-            return (x - min) / (max - min);
+            return (value - min) / (max - min);
         }
 
         private static void NormalizeMap(ref float[,] noiseMap)
         {
+            //get minimum and maximum values in the noise map
             float minNoiseValue = noiseMap.Cast<float>().Min();
             float maxNoiseValue = noiseMap.Cast<float>().Max();
             
