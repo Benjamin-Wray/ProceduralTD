@@ -7,10 +7,9 @@ namespace ProceduralTD;
 
 public static class WindowManager
 {
-    internal static RenderTarget2D Scene; //the whole game will be drawn to this render target so it can be scaled to any resolution
+    internal static RenderTarget2D Scene { get; private set; } //the whole game will be drawn to this render target so it can be scaled to any resolution
 
-    //boolean for keeping track of if the f11 key is currently down
-    private static bool _f11Down;
+    private static bool _f11Down; //boolean for keeping track of if the f11 key is currently down
 
     //window dimensions
     private const int DefaultWindowWidth = 1280;
@@ -21,8 +20,8 @@ public static class WindowManager
     private static int _windowedHeight;
 
     //scene dimensions
-    private const int SceneWidth = Ui.UiWidth * 2;
-    private const int SceneHeight = Ui.UiHeight * 2;
+    internal const int SceneWidth = Ui.UiWidth * 2;
+    internal const int SceneHeight = Ui.UiHeight * 2;
     private static Rectangle _sceneSize;
 
     internal static void Initialize(GameWindow window)

@@ -8,9 +8,6 @@ internal static class Camera
     internal const int CameraWidth = 352;
     internal const int CameraHeight = 288;
 
-    private const int MapWidth = MapGenerator.MapWidth;
-    private const int MapHeight = MapGenerator.MapHeight;
-
     private static float _cameraRangeX;
     private static float _cameraRangeY;
     private static Vector2 _cameraPosition;
@@ -22,8 +19,8 @@ internal static class Camera
     internal static void Initialize(float[,] heightMap)
     {
         //dimensions of area camera can move
-        _cameraRangeX = MapWidth - CameraWidth;
-        _cameraRangeY = MapHeight - CameraHeight;
+        _cameraRangeX = MapGenerator.MapWidth - CameraWidth;
+        _cameraRangeY = MapGenerator.MapHeight - CameraHeight;
         
         _cameraPosition = new Vector2(_cameraRangeX / 2f, _cameraRangeY / 2f); //camera initially positioned in the middle of the map
 
@@ -32,11 +29,11 @@ internal static class Camera
 
     private static Color[,] GenerateColourMap(float[,] heightMap) //generate 2D array of colours to be drawn to the screen to represent height
     {
-        Color[,] colourMap = new Color[MapWidth, MapHeight]; //create 2d array with the same size as the heightmap
+        Color[,] colourMap = new Color[MapGenerator.MapWidth, MapGenerator.MapHeight]; //create 2d array with the same size as the heightmap
         
-        for (int y = 0; y < MapHeight; y++)
+        for (int y = 0; y < MapGenerator.MapHeight; y++)
         {
-            for (int x = 0; x < MapWidth; x++)
+            for (int x = 0; x < MapGenerator.MapWidth; x++)
             {
                 //assign colours based on the height of each point on the heightmap
                 colourMap[x, y] = heightMap[x, y] switch
