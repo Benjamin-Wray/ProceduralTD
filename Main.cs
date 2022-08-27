@@ -1,24 +1,17 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 namespace ProceduralTD
 {
     internal class Main : Game
     {
-        internal static GraphicsDeviceManager Graphics { get; private set; }
-        internal static SpriteBatch SpriteBatch { get; private set; }
-        internal static ContentManager ContentMan { get; private set; }
+        internal static GraphicsDeviceManager Graphics;
+        internal static SpriteBatch SpriteBatch;
+        internal static ContentManager ContentManager;
+        internal static GameWindow GameWindow;
 
-        internal static KeyboardState KeyState { get; private set; }
-        internal static MouseState MouseState { get; private set; }
-        
-        //textures
-        internal static Texture2D Pixel { get; private set; }
-
-        private float[,] _heightMap;
+        private static bool _exit;
 
         public Main()
         {
@@ -29,43 +22,41 @@ namespace ProceduralTD
 
         protected override void Initialize()
         {
-            WindowManager.Initialize(Window);
-            Ui.Initialize(GraphicsDevice);
-
-            _heightMap = MapGenerator.GenerateNoiseMap(new Random().Next());
-
-            Camera.Initialize(_heightMap);
+            GameWindow = Window;
+            
+            StateMachine.Initialize();
 
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
-            ContentMan = Content;
             SpriteBatch = new SpriteBatch(GraphicsDevice);
-
-            Pixel = Content.Load<Texture2D>("images/map/pixel");
+            ContentManager = Content;
             
+            StateMachine.LoadContent();
+
             Ui.LoadContent();
         }
 
         protected override void Update(GameTime gameTime)
         {
-            KeyState = Keyboard.GetState();
-            MouseState = Mouse.GetState();
-            
-            if (KeyState.IsKeyDown(Keys.Escape)) Exit();
-            
-            WindowManager.Update();
-            Camera.Update();
-            Ui.Update();
-            
+            if (_exit) Exit();
+
+
+            StateMachine.Update();
+
             base.Update(gameTime);
+        }
+        
+        public static void ExitGame()
+        {
+            _exit = true;
         }
         
         protected override void Draw(GameTime gameTime)
         {
-            WindowManager.Draw();
+            StateMachine.Draw();
             
             base.Draw(gameTime);
         }

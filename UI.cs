@@ -10,9 +10,8 @@ internal static class Ui
 {
     internal const int UiWidth = 256;
     internal const int UiHeight = 144;
-    private static RenderTarget2D _fixedUiTarget; //this render target will contain all ui elements that do not change while the program is running
-    private static RenderTarget2D _uiTarget; //this render target will contain all ui elements that do change while the program is running
-    private static RenderTarget2D _mouseTarget; //this render target will contain the mouse
+    private static readonly RenderTarget2D FixedUiTarget = new(Main.Graphics.GraphicsDevice, UiWidth, UiHeight); //this render target will contain all ui elements that do not change while the program is running
+    private static readonly RenderTarget2D UiTarget = new(Main.Graphics.GraphicsDevice, UiWidth, UiHeight); //this render target will contain all ui elements that do change while the program is running
 
     //colours used when drawing to the screen
     private static readonly Color MenuBackground = new(122, 119, 153);
@@ -22,9 +21,6 @@ internal static class Ui
     private static readonly Color CannotBuyColour = new(130, 33, 29);
     private static readonly Color HoverFrameColour = new(255, 255, 255);
     private static readonly Color SelectedFrameColour = new(255, 246, 79);
-
-    //mouse cursor texture
-    private static Texture2D _cursor;
 
     //texture for the frame drawn around buttons when selected or when hovered over by the mouse
     private static Texture2D _buttonFrame;
@@ -36,6 +32,8 @@ internal static class Ui
     //the order the buttons will be drawn in
     private static Texture2D[,][] _buttonDrawOrder;
 
+    private static bool _leftMouseDown;
+    
     private static Vector2? _hover;
     private static Vector2? _selected;
     
@@ -63,23 +61,12 @@ internal static class Ui
     private const int Health = 100;
     private const int CurrentWave = 2;
 
-
-    internal static void Initialize(GraphicsDevice graphicsDevice)
-    {
-        //create render targets
-        _fixedUiTarget = new RenderTarget2D(graphicsDevice, UiWidth, UiHeight);
-        _uiTarget = new RenderTarget2D(graphicsDevice, UiWidth, UiHeight);
-        _mouseTarget = new RenderTarget2D(graphicsDevice, WindowManager.SceneWidth, WindowManager.SceneHeight);
-    }
-
     internal static void LoadContent()
     {
-        _cursor = Main.ContentMan.Load<Texture2D>("images/cursor");
-        
-        _buttonFrame = Main.ContentMan.Load<Texture2D>("images/ui/button_frame");
+        _buttonFrame = Main.ContentManager.Load<Texture2D>("images/ui/button_frame");
 
-        _upgrade = new[] { Main.ContentMan.Load<Texture2D>("images/ui/utilities/upgrade") }; 
-        _sell = new[] { Main.ContentMan.Load<Texture2D>("images/ui/utilities/sell") };
+        _upgrade = new[] { Main.ContentManager.Load<Texture2D>("images/ui/utilities/upgrade") }; 
+        _sell = new[] { Main.ContentManager.Load<Texture2D>("images/ui/utilities/sell") };
         
         _buttonDrawOrder = new[,]
         {
@@ -90,17 +77,17 @@ internal static class Ui
         
         _digits = new[]
         {
-            Main.ContentMan.Load<Texture2D>("images/ui/text/digits/0"),
-            Main.ContentMan.Load<Texture2D>("images/ui/text/digits/1"),
-            Main.ContentMan.Load<Texture2D>("images/ui/text/digits/2"),
-            Main.ContentMan.Load<Texture2D>("images/ui/text/digits/3"),
-            Main.ContentMan.Load<Texture2D>("images/ui/text/digits/4"),
-            Main.ContentMan.Load<Texture2D>("images/ui/text/digits/5"),
-            Main.ContentMan.Load<Texture2D>("images/ui/text/digits/6"),
-            Main.ContentMan.Load<Texture2D>("images/ui/text/digits/7"),
-            Main.ContentMan.Load<Texture2D>("images/ui/text/digits/8"),
-            Main.ContentMan.Load<Texture2D>("images/ui/text/digits/9"),
-            Main.ContentMan.Load<Texture2D>("images/ui/text/digits/£")
+            Main.ContentManager.Load<Texture2D>("images/ui/text/digits/0"),
+            Main.ContentManager.Load<Texture2D>("images/ui/text/digits/1"),
+            Main.ContentManager.Load<Texture2D>("images/ui/text/digits/2"),
+            Main.ContentManager.Load<Texture2D>("images/ui/text/digits/3"),
+            Main.ContentManager.Load<Texture2D>("images/ui/text/digits/4"),
+            Main.ContentManager.Load<Texture2D>("images/ui/text/digits/5"),
+            Main.ContentManager.Load<Texture2D>("images/ui/text/digits/6"),
+            Main.ContentManager.Load<Texture2D>("images/ui/text/digits/7"),
+            Main.ContentManager.Load<Texture2D>("images/ui/text/digits/8"),
+            Main.ContentManager.Load<Texture2D>("images/ui/text/digits/9"),
+            Main.ContentManager.Load<Texture2D>("images/ui/text/digits/£")
         };
         
         DrawFixedUi(); //draw the fixed ui to its render target
@@ -108,13 +95,13 @@ internal static class Ui
 
     private static void DrawFixedUi()
     {
-        Main.Graphics.GraphicsDevice.SetRenderTarget(_fixedUiTarget); //start drawing on UI render target
+        Main.Graphics.GraphicsDevice.SetRenderTarget(FixedUiTarget); //start drawing on UI render target
         Main.Graphics.GraphicsDevice.Clear(Color.Transparent); //clear the render target to transparent so it does not cover the map when drawn
 
         Main.SpriteBatch.Begin();
         
         //background drawn behind the button icon
-        Texture2D buttonBackground = Main.ContentMan.Load<Texture2D>("images/ui/button_background");
+        Texture2D buttonBackground = Main.ContentManager.Load<Texture2D>("images/ui/button_background");
         
         //draw the buttons
         for (int x = 0; x < _buttonDrawOrder.GetLength(0); x++)
@@ -129,23 +116,21 @@ internal static class Ui
         }
         
         //the icons for indicating the player's current health and balance
-        Texture2D heart = Main.ContentMan.Load<Texture2D>("images/ui/icons/heart");
+        Texture2D heart = Main.ContentManager.Load<Texture2D>("images/ui/icons/heart");
         Main.SpriteBatch.Draw(heart, HeartPosition, Color.White); 
-        Texture2D coin = Main.ContentMan.Load<Texture2D>("images/ui/icons/coin");
+        Texture2D coin = Main.ContentManager.Load<Texture2D>("images/ui/icons/coin");
         Main.SpriteBatch.Draw(coin, CoinPosition, Color.White);
         
         //the text for indicating the current wave
-        Texture2D wave = Main.ContentMan.Load<Texture2D>("images/ui/text/wave");
+        Texture2D wave = Main.ContentManager.Load<Texture2D>("images/ui/text/wave");
         Main.SpriteBatch.Draw(wave, WavePosition, TextColour);
     
         Main.SpriteBatch.End();
     }
 
-    private static bool _leftMouseDown;
-    
-    internal static void Update()
+    internal static void Update(MouseState mouseState)
     {
-        Point mousePosition = WindowManager.GetMouseInRectangle(_uiTarget.Bounds); //gets the position of the mouse on the ui render target
+        Point mousePosition = WindowManager.GetMouseInRectangle(mouseState.Position, UiTarget.Bounds); //gets the position of the mouse on the ui render target
         
         //set hover and cursor price to null at the start of each frame so the hover frame is removed when the mouse is not over a button
         _hover = null; 
@@ -159,7 +144,7 @@ internal static class Ui
                 if (x >= 2) buttonPosition.Y += 8; //the last row will be slightly lower to separate the tower buttons from the utility options
                 if (mousePosition.X >= buttonPosition.X + 1 && mousePosition.X < buttonPosition.X + 31 && mousePosition.Y >= buttonPosition.Y + 1 && mousePosition.Y < buttonPosition.Y + 31) //check if the mouse is within the bounds of the button
                 {
-                    switch (Main.MouseState.LeftButton) //check if the left mouse button is down
+                    switch (mouseState.LeftButton) //check if the left mouse button is down
                     {
                         case ButtonState.Pressed when !_leftMouseDown: //only executes for the first frame the button is pressed
                             _selected = _selected != buttonPosition ? buttonPosition : null; //selects the clicked button but deselects it if the button clicked is already selected
@@ -177,27 +162,14 @@ internal static class Ui
         }
     }
 
-    private static void DrawMouse()
-    {
-        Main.Graphics.GraphicsDevice.SetRenderTarget(_mouseTarget);
-        Main.Graphics.GraphicsDevice.Clear(Color.Transparent); //cleared to transparent so it can be drawn on top of everything else
-
-        Vector2 mousePosition = WindowManager.GetMouseInRectangle(_mouseTarget.Bounds).ToVector2(); //get the position of the mouse on the render target
-        
-        Main.SpriteBatch.Begin();
-        Main.SpriteBatch.Draw(_cursor, mousePosition, Color.White); //draw the mouse to the render target
-        if (_cursorPrice != null) DrawNumber(_cursorPrice.Value, mousePosition + new Vector2(_cursor.Width / 2f, -_digits[10].Height), Money >= _cursorPrice.Value ? CanBuyColour : CannotBuyColour, true); //draws price of tower next to cursor
-        Main.SpriteBatch.End();
-    }
-
     private static void DrawUi()
     {
-        Main.Graphics.GraphicsDevice.SetRenderTarget(_uiTarget);
+        Main.Graphics.GraphicsDevice.SetRenderTarget(UiTarget);
         Main.Graphics.GraphicsDevice.Clear(Color.Transparent); //cleared to transparent so it can be drawn on top of everything else
         
         Main.SpriteBatch.Begin();
         
-        Main.SpriteBatch.Draw(_fixedUiTarget, Vector2.Zero, Color.White); //draw the fixed ui so the dynamic ui can be drawn on top of it
+        Main.SpriteBatch.Draw(FixedUiTarget, Vector2.Zero, Color.White); //draw the fixed ui so the dynamic ui can be drawn on top of it
 
         //draw the hover and selected button frames if needed
         if (_hover != null) Main.SpriteBatch.Draw(_buttonFrame, _hover.Value, HoverFrameColour);
@@ -211,6 +183,15 @@ internal static class Ui
         Main.SpriteBatch.End();
     }
 
+    internal static void DrawPrice(Vector2 mousePosition, Texture2D cursor)
+    {
+        if (_cursorPrice == null) return;
+        
+        Vector2 drawPosition = mousePosition + new Vector2(cursor.Width / 2f, -_digits[10].Height);
+        Color drawColour = Money >= _cursorPrice.Value ? CanBuyColour : CannotBuyColour;
+        DrawNumber(_cursorPrice.Value, drawPosition, drawColour, true); //draws price of tower next to cursor
+    }
+    
     private static void DrawNumber(int number, Vector2 drawPosition, Color colour, bool isPrice = false)
     {
         if (isPrice)
@@ -230,7 +211,6 @@ internal static class Ui
     
     internal static void Draw()
     {
-        DrawMouse();
         DrawUi();
 
         Main.Graphics.GraphicsDevice.SetRenderTarget(WindowManager.Scene); //start drawing to the main render target
@@ -241,9 +221,7 @@ internal static class Ui
         Camera.DrawMap(); //draw the map the game takes place on
 
         //draw the ui and scale it to the size of the scene
-        Main.SpriteBatch.Draw(_uiTarget, new Rectangle(0, 0, WindowManager.Scene.Width, WindowManager.Scene.Height), Color.White);
-        Main.SpriteBatch.Draw(_mouseTarget, new Rectangle(0, 0, WindowManager.Scene.Width, WindowManager.Scene.Height), Color.White);
-        Main.SpriteBatch.Draw(_mouseTarget, new Rectangle(0, 0, WindowManager.Scene.Width, WindowManager.Scene.Height), Color.White);
+        Main.SpriteBatch.Draw(UiTarget, WindowManager.Scene.Bounds, Color.White);
 
         Main.SpriteBatch.End();
     }

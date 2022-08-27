@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 
 namespace ProceduralTD
 {
     internal static class MapGenerator
     {
+        internal static float[,] NoiseMap;
+        
         //permutation table (array of values from 0 to 255 used for selecting gradient vectors pseudorandomly)
         private const int PTableLength = 256;
 
@@ -31,26 +34,26 @@ namespace ProceduralTD
         private const float Lacunarity = 2; //this is multiplied by the frequency of the noise every octave
         private const float Persistence = .5f; //this is multiplied by the amplitude of the noise every octave
 
-        internal static float[,] GenerateNoiseMap(int seed = 0)
+        internal static void GenerateNoiseMap(int seed = 0)
         {
             //creates a permutation table from seed
             int[] pt = GeneratePermutationTable(seed);
 
             //creates an empty noise map
-            float[,] noiseMap = new float[MapWidth, MapHeight];
+            NoiseMap = new float[MapWidth, MapHeight];
             
             for (int y = 0; y < MapHeight; y++)
             {
                 for (int x = 0; x < MapWidth; x++)
                 {
                     //generate noise with octaves
-                    noiseMap[x, y] = OctaveNoise(x * NoiseScale, y * NoiseScale, pt);
+                    NoiseMap[x, y] = OctaveNoise(x * NoiseScale, y * NoiseScale, pt);
                 }
             }
 
-            NormalizeMap(ref noiseMap);
-
-            return noiseMap;
+            NormalizeMap(ref NoiseMap);
+            
+            StateMachine.ChangeState(StateMachine.Action.BeginGame);
         }
 
         private static int[] GeneratePermutationTable(int seed)
@@ -133,7 +136,7 @@ namespace ProceduralTD
         }
         
         //normalises value in the range 0.0 - 1.0
-        private static float Normalize(float value, float min, float max)
+        internal static float Normalize(float value, float min, float max)
         {
             return (value - min) / (max - min);
         }

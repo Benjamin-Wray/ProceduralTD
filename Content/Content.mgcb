@@ -121,6 +121,18 @@
 /processorParam:TextureFormat=Color
 /build:images/map/pixel.png
 
+#begin images/title/title.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:images/title/title.png
+
 #begin images/ui/button_background.png
 /importer:TextureImporter
 /processor:TextureProcessor
