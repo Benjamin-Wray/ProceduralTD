@@ -47,15 +47,16 @@ internal static class Camera
     }
     
     //called every frame
-    internal static void Update(KeyboardState keyState)
+    internal static void MoveCamera()
     {
+        KeyboardState keyboardState = Keyboard.GetState();
         Vector2 direction = Vector2.Zero; //vector that represents the direction the camera will move this frame
 
         //set direction from keyboard input
-        if ((keyState.IsKeyDown(Keys.Right) || keyState.IsKeyDown(Keys.D)) && _cameraPosition.X + MoveSpeed <= CameraRangeX) direction.X += 1;
-        if ((keyState.IsKeyDown(Keys.Left) || keyState.IsKeyDown(Keys.A)) && _cameraPosition.X - MoveSpeed >= 0) direction.X += -1;
-        if ((keyState.IsKeyDown(Keys.Down) || keyState.IsKeyDown(Keys.S)) && _cameraPosition.Y + MoveSpeed <= CameraRangeY) direction.Y += 1;
-        if ((keyState.IsKeyDown(Keys.Up) || keyState.IsKeyDown(Keys.W)) && _cameraPosition.Y - MoveSpeed >= 0) direction.Y += -1;
+        if ((keyboardState.IsKeyDown(Keys.Right) || keyboardState.IsKeyDown(Keys.D)) && _cameraPosition.X + MoveSpeed <= CameraRangeX) direction.X += 1;
+        if ((keyboardState.IsKeyDown(Keys.Left) || keyboardState.IsKeyDown(Keys.A)) && _cameraPosition.X - MoveSpeed >= 0) direction.X += -1;
+        if ((keyboardState.IsKeyDown(Keys.Down) || keyboardState.IsKeyDown(Keys.S)) && _cameraPosition.Y + MoveSpeed <= CameraRangeY) direction.Y += 1;
+        if ((keyboardState.IsKeyDown(Keys.Up) || keyboardState.IsKeyDown(Keys.W)) && _cameraPosition.Y - MoveSpeed >= 0) direction.Y += -1;
 
         //if a direction has been set
         if (direction != Vector2.Zero)

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 
 namespace ProceduralTD
@@ -34,7 +33,7 @@ namespace ProceduralTD
         private const float Lacunarity = 2; //this is multiplied by the frequency of the noise every octave
         private const float Persistence = .5f; //this is multiplied by the amplitude of the noise every octave
 
-        internal static void GenerateNoiseMap(int seed = 0)
+        internal static void GenerateNoiseMap(int seed)
         {
             //creates a permutation table from seed
             int[] pt = GeneratePermutationTable(seed);
@@ -53,6 +52,8 @@ namespace ProceduralTD
 
             NormalizeMap(ref NoiseMap);
             
+            Camera.GenerateColourMap();
+            
             StateMachine.ChangeState(StateMachine.Action.BeginGame);
         }
 
@@ -60,7 +61,7 @@ namespace ProceduralTD
         {
             int[] pt = new int[PTableLength]; //create empty permutation table
             for (int i = 0; i < PTableLength; i++) pt[i] = i; //fill table with values 0-255
-            
+
             Random rng = new Random(seed); //pass seed into random number generator so values will always be randomised in the the same way
             pt = pt.OrderBy(_ => rng.Next()).ToArray(); //randomise order of values in table
             pt = pt.Concat(pt).ToArray(); //double table size to prevent IndexOutOfBounds error later

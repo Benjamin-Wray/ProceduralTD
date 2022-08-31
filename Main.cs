@@ -43,8 +43,7 @@ namespace ProceduralTD
         {
             if (_exit) Exit();
 
-
-            StateMachine.Update();
+            StateMachine.Update(gameTime);
 
             base.Update(gameTime);
         }

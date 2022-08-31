@@ -25,10 +25,14 @@ internal static class Ui
     //texture for the frame drawn around buttons when selected or when hovered over by the mouse
     private static Texture2D _buttonFrame;
 
+    //background drawn behind the button icon
+    private static Texture2D _buttonBackground;
+
     //utility icon textures
     private static Texture2D[] _upgrade;
+
     private static Texture2D[] _sell;
-    
+
     //the order the buttons will be drawn in
     private static Texture2D[,][] _buttonDrawOrder;
 
@@ -43,11 +47,11 @@ internal static class Ui
     //draw positions
     private static readonly Vector2 ButtonPosition = new(184, 32);
     private static readonly Vector2 HeartPosition = new(186, 3);
-    private static readonly Vector2 HealthPosition = new(201, 6);
+    private static Vector2 _healthPosition;
     private static readonly Vector2 CoinPosition = new(186, 17);
-    private static readonly Vector2 MoneyPosition = new(201, 20);
+    private static Vector2 _moneyPosition;
     private static readonly Vector2 WavePosition = new(4, 4);
-    private static readonly Vector2 WaveCountPosition = new(30, 4);
+    private static Vector2 _waveCountPosition;
 
     private static int? _cursorPrice;
     private static readonly int?[,] Prices = 
@@ -64,6 +68,7 @@ internal static class Ui
     internal static void LoadContent()
     {
         _buttonFrame = Main.ContentManager.Load<Texture2D>("images/ui/button_frame");
+        _buttonBackground = Main.ContentManager.Load<Texture2D>("images/ui/button_background");
 
         _upgrade = new[] { Main.ContentManager.Load<Texture2D>("images/ui/utilities/upgrade") }; 
         _sell = new[] { Main.ContentManager.Load<Texture2D>("images/ui/utilities/sell") };
@@ -89,8 +94,15 @@ internal static class Ui
             Main.ContentManager.Load<Texture2D>("images/ui/text/digits/9"),
             Main.ContentManager.Load<Texture2D>("images/ui/text/digits/£")
         };
-        
+
         DrawFixedUi(); //draw the fixed ui to its render target
+    }
+
+    private static void CalculateTextPosition(Texture2D heart, Texture2D coin, Texture2D wave)
+    {
+        _healthPosition = HeartPosition + new Vector2(heart.Width + 2, 2);
+        _moneyPosition = CoinPosition + new Vector2(coin.Width + 2, 2);
+        _waveCountPosition = WavePosition + new Vector2(wave.Width, 0);
     }
 
     private static void DrawFixedUi()
@@ -99,18 +111,15 @@ internal static class Ui
         Main.Graphics.GraphicsDevice.Clear(Color.Transparent); //clear the render target to transparent so it does not cover the map when drawn
 
         Main.SpriteBatch.Begin();
-        
-        //background drawn behind the button icon
-        Texture2D buttonBackground = Main.ContentManager.Load<Texture2D>("images/ui/button_background");
-        
+
         //draw the buttons
         for (int x = 0; x < _buttonDrawOrder.GetLength(0); x++)
         {
             for (int y = 0; y < _buttonDrawOrder.GetLength(1); y++)
             {
-                Vector2 position = new Vector2(y * 32 + ButtonPosition.X, x * 32 + ButtonPosition.Y); //position of the button to be drawn
+                Vector2 position = new Vector2(y * _buttonBackground.Width + ButtonPosition.X, x * _buttonBackground.Height + ButtonPosition.Y); //position of the button to be drawn
                 if (x >= 2) position.Y += 8; //the last row will be slightly lower to separate the tower buttons from the utility options
-                Main.SpriteBatch.Draw(buttonBackground, position, TileBackground); //draw the background for the button
+                Main.SpriteBatch.Draw(_buttonBackground, position, TileBackground); //draw the background for the button
                 foreach (Texture2D texture in _buttonDrawOrder[x, y]) Main.SpriteBatch.Draw(texture, position, Color.White); //draw the button icon
             }
         }
@@ -124,12 +133,15 @@ internal static class Ui
         //the text for indicating the current wave
         Texture2D wave = Main.ContentManager.Load<Texture2D>("images/ui/text/wave");
         Main.SpriteBatch.Draw(wave, WavePosition, TextColour);
+        
+        CalculateTextPosition(heart, coin, wave);
     
         Main.SpriteBatch.End();
     }
 
-    internal static void Update(MouseState mouseState)
+    internal static void Update()
     {
+        MouseState mouseState = Mouse.GetState();
         Point mousePosition = WindowManager.GetMouseInRectangle(mouseState.Position, UiTarget.Bounds); //gets the position of the mouse on the ui render target
         
         //set hover and cursor price to null at the start of each frame so the hover frame is removed when the mouse is not over a button
@@ -142,7 +154,8 @@ internal static class Ui
             {
                 Vector2 buttonPosition = new Vector2(y * 32 + ButtonPosition.X, x * 32 + ButtonPosition.Y); //position of the button we are checking
                 if (x >= 2) buttonPosition.Y += 8; //the last row will be slightly lower to separate the tower buttons from the utility options
-                if (mousePosition.X >= buttonPosition.X + 1 && mousePosition.X < buttonPosition.X + 31 && mousePosition.Y >= buttonPosition.Y + 1 && mousePosition.Y < buttonPosition.Y + 31) //check if the mouse is within the bounds of the button
+                Rectangle buttonBounds = new Rectangle((int)(buttonPosition.X + 1), (int)(buttonPosition.Y + 1), _buttonBackground.Width - 1, _buttonBackground.Height - 1); //the rectangle our button in in
+                if (buttonBounds.Contains(mousePosition)) //check if the mouse is within the bounds of the button
                 {
                     switch (mouseState.LeftButton) //check if the left mouse button is down
                     {
@@ -176,9 +189,9 @@ internal static class Ui
         if (_selected != null) Main.SpriteBatch.Draw(_buttonFrame, _selected.Value, SelectedFrameColour);
 
         //draw the numbers for health, money and current wave
-        DrawNumber(Health, HealthPosition, TextColour);
-        DrawNumber(Money, MoneyPosition, TextColour, true);
-        DrawNumber(CurrentWave, WaveCountPosition, TextColour);
+        DrawNumber(Health.ToString(), _healthPosition, TextColour);
+        DrawNumber(Money.ToString(), _moneyPosition, TextColour, true);
+        DrawNumber(CurrentWave.ToString(), _waveCountPosition, TextColour);
         
         Main.SpriteBatch.End();
     }
@@ -189,10 +202,10 @@ internal static class Ui
         
         Vector2 drawPosition = mousePosition + new Vector2(cursor.Width / 2f, -_digits[10].Height);
         Color drawColour = Money >= _cursorPrice.Value ? CanBuyColour : CannotBuyColour;
-        DrawNumber(_cursorPrice.Value, drawPosition, drawColour, true); //draws price of tower next to cursor
+        DrawNumber(_cursorPrice.Value.ToString(), drawPosition, drawColour, true); //draws price of tower next to cursor
     }
     
-    private static void DrawNumber(int number, Vector2 drawPosition, Color colour, bool isPrice = false)
+    internal static void DrawNumber(string number, Vector2 drawPosition, Color colour, bool isPrice = false)
     {
         if (isPrice)
         {
@@ -202,7 +215,7 @@ internal static class Ui
         
         //c# cannot iterate through digits in an integer so we must convert it to a string so it can iterate through each character
         //we then convert the character back into an int and use as an index it to get the corresponding texture from our array of digit textures
-        foreach (var texture in number.ToString().Select(digit => _digits[Convert.ToInt32(Convert.ToString(digit))]))
+        foreach (var texture in number.Select(digit => _digits[Convert.ToInt32(Convert.ToString(digit))]))
         {
             Main.SpriteBatch.Draw(texture, drawPosition, colour); //draw the selected texture to the render target
             drawPosition.X += texture.Width + 1; //move the position to the right so the next digit is drawn to the right of the previous one

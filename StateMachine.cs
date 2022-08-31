@@ -1,14 +1,10 @@
-﻿using System.Threading.Tasks;
-using Microsoft.Xna.Framework.Input;
+﻿using Microsoft.Xna.Framework;
 
 namespace ProceduralTD;
 
 internal static class StateMachine
 {
-    private static KeyboardState _keyState;
-    private static MouseState _mouseState;
-    
-    private enum State
+    internal enum State
     {
         Title,
         LoadingMap,
@@ -17,37 +13,43 @@ internal static class StateMachine
 
     internal enum Action
     {
-        Initialize,
+        StartProgram,
         LoadMap,
         BeginGame
     }
 
-    private static State _currentState;
+    //the state machine's current state
+    //other classes can read it but not directly assign it
+    //other classes can only change the state machine's state by passing an action into the ChangeState subroutine
+    internal static State CurrentState { get; private set; }
 
+    //used to change the current state
+    //an action is input to the state machine and the state will change depending on the action and current state
     internal static void ChangeState(Action action)
     {
-        switch (_currentState, action)
+        switch (CurrentState, action)
         {
-            case (_, Action.Initialize):
-                _currentState = State.Title;
+            case (_, Action.StartProgram): //runs when the program first starts
+                CurrentState = State.Title; //switches to the title screen
+                WindowManager.Initialize(); //initializes the window manager before starting the game
                 break;
-            case (State.Title, Action.LoadMap):
-                _currentState = State.LoadingMap;
-                Task.Run(() => MapGenerator.GenerateNoiseMap());
+            case (State.Title, Action.LoadMap): //runs when the start button is pressed on the title screen
+                CurrentState = State.LoadingMap; //tells the program to start loading the map
+                TitleScreen.LoadMap();
                 break;
-            case (State.LoadingMap, Action.BeginGame):
-                _currentState = State.MainGame;
-                Camera.GenerateColourMap();
+            case (State.LoadingMap, Action.BeginGame): //runs when the map has finished being generated
+                CurrentState = State.MainGame;
                 break;
         }
     }
 
+    //runs at the start of the program
     internal static void Initialize()
     {
-        WindowManager.Initialize();
-        ChangeState(Action.Initialize);
+        ChangeState(Action.StartProgram); //sets the current state to it's initial state: the title screen
     }
 
+    //loads all of the textures to be drawn
     internal static void LoadContent()
     {
         WindowManager.LoadContent();
@@ -56,36 +58,40 @@ internal static class StateMachine
         Camera.LoadContent();
     }
 
-    internal static void Update()
+    //runs every frame, mainly used for user input
+    internal static void Update(GameTime gameTime)
     {
-        _keyState = Keyboard.GetState();
-        _mouseState = Mouse.GetState();
-        
-        WindowManager.Update(_keyState);
+        WindowManager.Update(); //always runs the window manager regardless of the current state
 
-        switch (_currentState)
+        switch (CurrentState)
         {
-            case State.Title:
-                TitleScreen.Update(_keyState);
+            case State.Title: //the title screen is still displayed while the map is being generated
+                TitleScreen.Update();
+                break;
+            case State.LoadingMap:
+                TitleScreen.PlayLoadingAnimation(gameTime);
                 break;
             case State.MainGame:
-                Camera.Update(_keyState);
-                Ui.Update(_mouseState);
+                Camera.MoveCamera();
+                Ui.Update();
                 break;
         }
     }
 
+    //runs every frame after update, draws all of the textures to the window
     internal static void Draw()
     {
-        switch (_currentState)
+        //the classes draw to the scene render target
+        switch (CurrentState)
         {
             case State.Title:
+            case State.LoadingMap: //the title screen is still displayed while the map is being generated
                 TitleScreen.Draw();
                 break;
             case State.MainGame:
                 Ui.Draw();
                 break;
         }
-        WindowManager.Draw(_mouseState.Position);
+        WindowManager.Draw(); //the window manager draws the scene to the window after the other classes have finished drawing to it 
     }
 }

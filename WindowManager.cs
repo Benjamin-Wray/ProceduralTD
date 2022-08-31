@@ -57,9 +57,11 @@ public static class WindowManager
         SetSceneSize(); //update the size and position of the scene render target to fit new window size
     }
 
-    internal static void Update(KeyboardState keyboardState)
+    internal static void Update()
     {
-        if (keyboardState.IsKeyDown(Keys.Escape)) Main.ExitGame();
+        KeyboardState keyboardState = Keyboard.GetState();
+        
+        if (keyboardState.IsKeyDown(Keys.Escape)) Main.ExitGame(); //exits the game if the escape key is pressed
         
         //toggles fullscreen when F11 is pressed
         if (keyboardState.IsKeyDown(Keys.F11) && !_f11Down)
@@ -79,11 +81,12 @@ public static class WindowManager
         return mousePosition;
     }
     
-    private static void DrawMouse(Point mousePosition)
+    //draws the mouse to the screen
+    private static void DrawMouse()
     {
         Main.Graphics.GraphicsDevice.SetRenderTarget(Scene);
 
-        Vector2 newMousePosition = GetMouseInRectangle(mousePosition, Scene.Bounds).ToVector2(); //get the position of the mouse on the render target
+        Vector2 newMousePosition = GetMouseInRectangle(Mouse.GetState().Position, Scene.Bounds).ToVector2(); //get the position of the mouse on the render target
         
         Main.SpriteBatch.Begin();
         Main.SpriteBatch.Draw(_cursor, newMousePosition, Color.White); //draw the mouse to the render target
@@ -91,9 +94,9 @@ public static class WindowManager
         Main.SpriteBatch.End();
     }
     
-    internal static void Draw(Point mousePosition)
+    internal static void Draw()
     {
-        DrawMouse(mousePosition);
+        DrawMouse(); //the mouse will be the last thing to be drawn so it always appears on top
         
         Main.Graphics.GraphicsDevice.SetRenderTarget(null); //start drawing to window
         Main.Graphics.GraphicsDevice.Clear(Color.Black); //set the colour of bars seen in letterboxing when window and scene aspect ratios don't match
