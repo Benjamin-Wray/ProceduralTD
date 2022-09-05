@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -9,11 +10,11 @@ internal static class Camera
     internal const int CameraWidth = 352;
     internal const int CameraHeight = 288;
 
-    private const float CameraRangeX = MapGenerator.MapWidth - CameraWidth;
-    private const float CameraRangeY = MapGenerator.MapHeight - CameraHeight;
+    private const int CameraRangeX = MapGenerator.MapWidth - CameraWidth;
+    private const int CameraRangeY = MapGenerator.MapHeight - CameraHeight;
     private static Vector2 _cameraPosition = new(CameraRangeX / 2f, CameraRangeY / 2f); //camera initially positioned in the middle of the map;
     
-    private const float MoveSpeed = 4f; //how fast the camera moves
+    private const float MoveSpeed = 200f; //how fast the camera moves
     private static Color[,] _colourMap;
 
     private static Texture2D _pixel;
@@ -26,7 +27,7 @@ internal static class Camera
     internal static void GenerateColourMap() //generate 2D array of colours to be drawn to the screen to represent height
     {
         _colourMap = new Color[MapGenerator.MapWidth, MapGenerator.MapHeight]; //create 2d array with the same size as the heightmap
-        
+
         for (int y = 0; y < MapGenerator.MapHeight; y++)
         {
             for (int x = 0; x < MapGenerator.MapWidth; x++)
@@ -47,22 +48,39 @@ internal static class Camera
     }
     
     //called every frame
-    internal static void MoveCamera()
+    internal static void MoveCamera(GameTime gameTime)
     {
         KeyboardState keyboardState = Keyboard.GetState();
         Vector2 direction = Vector2.Zero; //vector that represents the direction the camera will move this frame
 
         //set direction from keyboard input
-        if ((keyboardState.IsKeyDown(Keys.Right) || keyboardState.IsKeyDown(Keys.D)) && _cameraPosition.X + MoveSpeed <= CameraRangeX) direction.X += 1;
-        if ((keyboardState.IsKeyDown(Keys.Left) || keyboardState.IsKeyDown(Keys.A)) && _cameraPosition.X - MoveSpeed >= 0) direction.X += -1;
-        if ((keyboardState.IsKeyDown(Keys.Down) || keyboardState.IsKeyDown(Keys.S)) && _cameraPosition.Y + MoveSpeed <= CameraRangeY) direction.Y += 1;
-        if ((keyboardState.IsKeyDown(Keys.Up) || keyboardState.IsKeyDown(Keys.W)) && _cameraPosition.Y - MoveSpeed >= 0) direction.Y += -1;
+        if (keyboardState.IsKeyDown(Keys.Right) || keyboardState.IsKeyDown(Keys.D)) direction.X += 1;
+        if (keyboardState.IsKeyDown(Keys.Left) || keyboardState.IsKeyDown(Keys.A)) direction.X += -1;
+        if (keyboardState.IsKeyDown(Keys.Down) || keyboardState.IsKeyDown(Keys.S)) direction.Y += 1;
+        if (keyboardState.IsKeyDown(Keys.Up) || keyboardState.IsKeyDown(Keys.W)) direction.Y += -1;
 
-        //if a direction has been set
+        //if the direction was changed
         if (direction != Vector2.Zero)
         {
             direction.Normalize(); //make the modulus of the vector 1 so diagonal movement is the same speed as horizontal/vertical movement
-            _cameraPosition += direction * MoveSpeed; //multiply movement speed by the direction vector and add it to the camera's position
+            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds; //the time passed since the last frame
+            
+            //move the camera 
+            Vector2 newCameraPosition = _cameraPosition + direction * MoveSpeed * deltaTime;
+            //move horizontally
+            _cameraPosition.X = newCameraPosition.X switch
+            {
+                < 0 => 0,
+                > CameraRangeX => CameraRangeX,
+                _ => newCameraPosition.X
+            };
+            //move vertically
+            _cameraPosition.Y = newCameraPosition.Y switch
+            {
+                < 0 => 0,
+                > CameraRangeY => CameraRangeY,
+                _ => newCameraPosition.Y
+            };
         }
     }
     
@@ -73,8 +91,8 @@ internal static class Camera
             for (int x = 0; x < CameraWidth; x++)
             {
                 Vector2 position = new Vector2(x, y); //position on the screen where the point will be drawn
-                Color colour = _colourMap[x + (int)_cameraPosition.X, y + (int)_cameraPosition.Y]; //the colour is selected based on the position on the map
-                Main.SpriteBatch.Draw(_pixel, position, colour); //pixel is drawn to the screen 
+                Color colour = _colourMap[x + (int)Math.Floor(_cameraPosition.X), y + (int)Math.Floor(_cameraPosition.Y)]; //the colour is selected based on the position on the map
+                Main.SpriteBatch.Draw(_pixel, position, colour); //pixel is drawn to the screen
             }
         }
     }

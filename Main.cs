@@ -18,6 +18,7 @@ namespace ProceduralTD
             Graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = false;
+            IsFixedTimeStep = true;
         }
 
         protected override void Initialize()

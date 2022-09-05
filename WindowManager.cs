@@ -45,13 +45,13 @@ public static class WindowManager
     //called whenever the game window is resized
     private static void OnResize(object? sender, EventArgs eventArgs)
     {
-        //update the current dimensions of the window
-        _currentWidth = Main.Graphics.GraphicsDevice.Viewport.Width;
-        _currentHeight = Main.Graphics.GraphicsDevice.Viewport.Height;
+        //get the current dimensions of the window
+        int width = Main.Graphics.GraphicsDevice.Viewport.Width;
+        int height = Main.Graphics.GraphicsDevice.Viewport.Height;
         
         //clamp minimum window size to size of scene
-        if (Main.Graphics.GraphicsDevice.Viewport.Width < SceneWidth) Main.Graphics.PreferredBackBufferWidth = SceneWidth;
-        if (Main.Graphics.GraphicsDevice.Viewport.Height < SceneHeight) Main.Graphics.PreferredBackBufferHeight = SceneHeight;
+        if (width < SceneWidth) Main.Graphics.PreferredBackBufferWidth = SceneWidth;
+        if (height < SceneHeight) Main.Graphics.PreferredBackBufferHeight = SceneHeight;
         Main.Graphics.ApplyChanges();
         
         SetSceneSize(); //update the size and position of the scene render target to fit new window size
@@ -139,6 +139,7 @@ public static class WindowManager
     
     private static void SetSceneSize() //set size of scene render target
     {
+        //update current window width and height values
         _currentWidth = Main.Graphics.GraphicsDevice.Viewport.Width;
         _currentHeight = Main.Graphics.GraphicsDevice.Viewport.Height;
         
@@ -146,13 +147,17 @@ public static class WindowManager
         Point rectangleSize = new Point(_currentWidth, _currentHeight);
         Point rectangleOffset = Point.Zero;
 
-        if (_currentWidth / (float)_currentHeight > SceneWidth / (float)SceneHeight) //if window aspect ratio is wider than scene aspect ratio
+        //aspect ratios of window and scene render targets
+        float windowAspect = _currentWidth / (float) _currentHeight;
+        float sceneAspect = SceneWidth / (float) SceneHeight;
+        
+        if (windowAspect > sceneAspect) //if window aspect ratio is wider than scene aspect ratio
         {
             //adjust the width of the scene so it has the current aspect ratio and position the scene at the centre of the window
             rectangleSize.X = SceneWidth * _currentHeight / SceneHeight;
             rectangleOffset.X = (_currentWidth - rectangleSize.X) / 2;
         }
-        else //if window aspect ratio is taller than scene aspect ratio
+        else if (windowAspect < sceneAspect) //if window aspect ratio is taller than scene aspect ratio
         {
             //adjust the height of the scene so it has the correct aspect ratio and position the scene at the centre of the window
             rectangleSize.Y = SceneHeight * _currentWidth / SceneWidth;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 
 namespace ProceduralTD
@@ -14,10 +15,6 @@ namespace ProceduralTD
         //array of vectors that will be selected pseudorandomly
         private static readonly Vector2[] GradientVectors =
         {
-            new(1, 0),
-            new(0, 1),
-            new(-1, 0),
-            new(0, -1),
             new(1, 1),
             new(1, -1),
             new(-1, 1),
@@ -25,7 +22,7 @@ namespace ProceduralTD
         };
         
         //values for map generation
-        private const int MapScale = 6;
+        private const int MapScale = 4; //how many times bigger the map is than the camera
         internal const int MapWidth = Camera.CameraWidth * MapScale;
         internal const int MapHeight = Camera.CameraHeight * MapScale;
         private const float NoiseScale = .008f; //how "zoomed in" the noise is
@@ -40,17 +37,17 @@ namespace ProceduralTD
 
             //creates an empty noise map
             NoiseMap = new float[MapWidth, MapHeight];
-            
-            for (int y = 0; y < MapHeight; y++)
+
+            Parallel.For(0, MapHeight, y =>
             {
-                for (int x = 0; x < MapWidth; x++)
+                Parallel.For(0, MapWidth, x =>
                 {
                     //generate noise with octaves
                     NoiseMap[x, y] = OctaveNoise(x * NoiseScale, y * NoiseScale, pt);
-                }
-            }
+                });
+            });
 
-            NormalizeMap(ref NoiseMap);
+            NoiseMap = NormalizeMap(NoiseMap);
             
             Camera.GenerateColourMap();
             
@@ -142,22 +139,22 @@ namespace ProceduralTD
             return (value - min) / (max - min);
         }
 
-        private static void NormalizeMap(ref float[,] noiseMap)
+        private static float[,] NormalizeMap(float[,] noiseMap)
         {
             //get minimum and maximum values in the noise map
             float minNoiseValue = noiseMap.Cast<float>().Min();
             float maxNoiseValue = noiseMap.Cast<float>().Max();
-            
-            for (int y = 0; y < noiseMap.GetLength(1); y++)
+
+            Parallel.For(0, MapHeight, y =>
             {
-                for (int x = 0; x < noiseMap.GetLength(0); x++)
+                Parallel.For(0, MapWidth, x =>
                 {
                     //generate noise with octaves
                     noiseMap[x, y] = Normalize(noiseMap[x, y], minNoiseValue, maxNoiseValue);
-                }
-            }
-        }
+                });
+            });
 
-        
+            return noiseMap;
+        }
     }
 }

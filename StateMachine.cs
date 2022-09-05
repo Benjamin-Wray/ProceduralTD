@@ -72,7 +72,7 @@ internal static class StateMachine
                 TitleScreen.PlayLoadingAnimation(gameTime);
                 break;
             case State.MainGame:
-                Camera.MoveCamera();
+                Camera.MoveCamera(gameTime);
                 Ui.Update();
                 break;
         }
