@@ -56,14 +56,18 @@ namespace ProceduralTD
 
         private static int[] GeneratePermutationTable(int seed)
         {
-            int[] pt = new int[PTableLength]; //create empty permutation table
-            for (int i = 0; i < PTableLength; i++) pt[i] = i; //fill table with values 0-255
-
             Random rng = new Random(seed); //pass seed into random number generator so values will always be randomised in the the same way
-            pt = pt.OrderBy(_ => rng.Next()).ToArray(); //randomise order of values in table
-            pt = pt.Concat(pt).ToArray(); //double table size to prevent IndexOutOfBounds error later
+            int[] permutationTable = new int[PTableLength]; //create empty permutation table
 
-            return pt;
+            //place every number from 1-255 in the table
+            for (int i = 1; i < PTableLength; i++)
+            {
+                int pos = rng.Next(PTableLength); //generate a random position to place the number in the table
+                while (permutationTable[pos] != 0) pos = (pos + 1) % PTableLength; //if there is already a number in that position check the next position until an empty space is found
+                permutationTable[pos] = i; //insert the value into the random position in the table
+            }
+
+            return permutationTable;
         }
 
         //generate perlin noise in octaves
@@ -88,20 +92,20 @@ namespace ProceduralTD
         private static float Noise(float x, float y, int[] pt)
         {
             //find the unit square our coordinate is in
-            // & PTableLength-1 makes sure the values are within the range of the permutation table (0-255)
+            // MOD PTableLength-1 makes sure the values are within the range of the permutation table (0-255)
             int squareX = (int)Math.Floor(x) % PTableLength;
             int squareY = (int)Math.Floor(y) % PTableLength;
+            
+            //select 4 pseudorandom vectors from permutation table using corners of unit square
+            Vector2 vec00 = GradientVectors[pt[(pt[squareX] + pt[squareY]) % pt.Length] % GradientVectors.Length];
+            Vector2 vec01 = GradientVectors[pt[(pt[squareX] + pt[squareY+1]) % pt.Length] % GradientVectors.Length];
+            Vector2 vec10 = GradientVectors[pt[(pt[squareX+1] + pt[squareY]) % pt.Length] % GradientVectors.Length];
+            Vector2 vec11 = GradientVectors[pt[(pt[squareX+1] + pt[squareY+1]) % pt.Length] % GradientVectors.Length];
 
             //calculate x and y coordinates within unit square (we will use these for our distance vectors when calculating dot products)
             x -= (float)Math.Floor(x);
             y -= (float)Math.Floor(y);
-
-            //select 4 pseudorandom vectors from permutation table using corners of unit square
-            Vector2 vec00 = GradientVectors[pt[pt[squareX] + squareY] % GradientVectors.Length];
-            Vector2 vec01 = GradientVectors[pt[pt[squareX] + squareY+1] % GradientVectors.Length];
-            Vector2 vec10 = GradientVectors[pt[pt[squareX+1] + squareY] % GradientVectors.Length];
-            Vector2 vec11 = GradientVectors[pt[pt[squareX+1] + squareY+1] % GradientVectors.Length];
-
+            
             //find the dot products of the pseudorandom vectors and the distance vectors (vectors of the corners of the square to the point)
             float dot00 = Vector2.Dot(vec00, new Vector2(x, y));
             float dot01 = Vector2.Dot(vec01, new Vector2(x, y-1));

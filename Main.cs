@@ -36,8 +36,6 @@ namespace ProceduralTD
             ContentManager = Content;
             
             StateMachine.LoadContent();
-
-            Ui.LoadContent();
         }
 
         protected override void Update(GameTime gameTime)

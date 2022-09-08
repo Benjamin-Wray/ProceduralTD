@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -13,7 +15,19 @@ internal static class Camera
     private const int CameraRangeX = MapGenerator.MapWidth - CameraWidth;
     private const int CameraRangeY = MapGenerator.MapHeight - CameraHeight;
     private static Vector2 _cameraPosition = new(CameraRangeX / 2f, CameraRangeY / 2f); //camera initially positioned in the middle of the map;
-    
+
+    private static readonly Dictionary<Keys, Vector2> MovementKeys = new()
+    {
+        {Keys.W, new Vector2(0, -1)},
+        {Keys.Up, new Vector2(0, -1)},
+        {Keys.A, new Vector2(-1, 0)},
+        {Keys.Left, new Vector2(-1, 0)},
+        {Keys.S, new Vector2(0, 1)},
+        {Keys.Down, new Vector2(0, 1)},
+        {Keys.D, new Vector2(1, 0)},
+        {Keys.Right, new Vector2(1, 0)},
+    };
+
     private const float MoveSpeed = 200f; //how fast the camera moves
     private static Color[,] _colourMap;
 
@@ -51,13 +65,9 @@ internal static class Camera
     internal static void MoveCamera(GameTime gameTime)
     {
         KeyboardState keyboardState = Keyboard.GetState();
-        Vector2 direction = Vector2.Zero; //vector that represents the direction the camera will move this frame
+        Vector2 direction = keyboardState.GetPressedKeys().Where(key => MovementKeys.ContainsKey(key)).Aggregate(Vector2.Zero, (current, key) => current + MovementKeys[key]); //vector that represents the direction the camera will move this frame
 
         //set direction from keyboard input
-        if (keyboardState.IsKeyDown(Keys.Right) || keyboardState.IsKeyDown(Keys.D)) direction.X += 1;
-        if (keyboardState.IsKeyDown(Keys.Left) || keyboardState.IsKeyDown(Keys.A)) direction.X += -1;
-        if (keyboardState.IsKeyDown(Keys.Down) || keyboardState.IsKeyDown(Keys.S)) direction.Y += 1;
-        if (keyboardState.IsKeyDown(Keys.Up) || keyboardState.IsKeyDown(Keys.W)) direction.Y += -1;
 
         //if the direction was changed
         if (direction != Vector2.Zero)

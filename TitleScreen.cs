@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -44,14 +46,19 @@ public static class TitleScreen
 
     //the keys that can be pressed in order to input numbers into the seed input box
 
-    private static readonly Keys[] NumberKeys =
+    private static readonly Dictionary<Keys, char> NumberKeys = new()
     {
-        Keys.D0, Keys.D1, Keys.D2, Keys.D3, Keys.D4, Keys.D5, Keys.D6, Keys.D7, Keys.D8, Keys.D9,
-        Keys.NumPad0, Keys.NumPad1, Keys.NumPad2, Keys.NumPad3, Keys.NumPad4, Keys.NumPad5, Keys.NumPad6, Keys.NumPad7, Keys.NumPad8, Keys.NumPad9
+        {Keys.D0, '0'}, {Keys.D1, '1'}, {Keys.D2, '2'}, {Keys.D3, '3'}, {Keys.D4, '4'}, {Keys.D5, '5'}, {Keys.D6, '6'}, {Keys.D7, '7'}, {Keys.D8, '8'}, {Keys.D9, '9'},
+        {Keys.NumPad0, '0'}, {Keys.NumPad1, '1'}, {Keys.NumPad2, '2'}, {Keys.NumPad3, '3'}, {Keys.NumPad4, '4'}, {Keys.NumPad5, '5'}, {Keys.NumPad6, '6'}, {Keys.NumPad7, '7'}, {Keys.NumPad8, '8'}, {Keys.NumPad9, '9'}
     };
 
     //tells the program which keys are currently being pressed
-    private static readonly bool[] IsNumberKeyDown = new bool[NumberKeys.Length];
+    private static readonly Dictionary<Keys, bool> IsKeyDown = new()
+    {
+        {Keys.D0, false}, {Keys.D1, false}, {Keys.D2, false}, {Keys.D3, false}, {Keys.D4, false}, {Keys.D5, false}, {Keys.D6, false}, {Keys.D7, false}, {Keys.D8, false}, {Keys.D9, false},
+        {Keys.NumPad0, false}, {Keys.NumPad1, false}, {Keys.NumPad2, false}, {Keys.NumPad3, false}, {Keys.NumPad4, false}, {Keys.NumPad5, false}, {Keys.NumPad6, false}, {Keys.NumPad7, false}, {Keys.NumPad8, false}, {Keys.NumPad9, false}
+    };
+    
     private static bool _isBackspaceDown;
 
     private static int _timer; //keeps track of how much time has passed
@@ -101,15 +108,14 @@ public static class TitleScreen
         else if (keyboardState.IsKeyUp(Keys.Back) && _isBackspaceDown) _isBackspaceDown = false; //tells the program the key has been released
         
         //number input
-        for (int i = 0; i < NumberKeys.Length; i++) //iterates through all possible number key inputs
+        foreach (Keys key in NumberKeys.Keys)
         {
-            Keys key = NumberKeys[i];
-            if (keyboardState.IsKeyDown(key) && _seed.Length < MaxSeedLength && !IsNumberKeyDown[i]) //if a number key was pressed and the seed box is not full
+            if (keyboardState.IsKeyDown(key) && _seed.Length < MaxSeedLength && !IsKeyDown[key]) //if a number key was pressed and the seed box is not full
             {
-                _seed += i % (NumberKeys.Length / 2); //adds the number corresponding to the keypress to the end of the seed
-                IsNumberKeyDown[i] = true; //prevents the action for this specific key from being triggered until it is released
+                _seed += NumberKeys[key]; //adds the number corresponding to the keypress to the end of the seed
+                IsKeyDown[key] = true; //prevents the action for this specific key from being triggered until it is released
             }
-            else if (keyboardState.IsKeyUp(key) && IsNumberKeyDown[i]) IsNumberKeyDown[i] = false; //tells the program the key has been released
+            else if (keyboardState.IsKeyUp(key) && IsKeyDown[key]) IsKeyDown[key] = false; //tells the program the key has been released
         }
 
         //mouse input

@@ -144,8 +144,7 @@ public static class WindowManager
         _currentHeight = Main.Graphics.GraphicsDevice.Viewport.Height;
         
         //set initial dimensions to the same as the window
-        Point rectangleSize = new Point(_currentWidth, _currentHeight);
-        Point rectangleOffset = Point.Zero;
+        _sceneSize = new Rectangle(0, 0, _currentWidth, _currentHeight);
 
         //aspect ratios of window and scene render targets
         float windowAspect = _currentWidth / (float) _currentHeight;
@@ -154,16 +153,14 @@ public static class WindowManager
         if (windowAspect > sceneAspect) //if window aspect ratio is wider than scene aspect ratio
         {
             //adjust the width of the scene so it has the current aspect ratio and position the scene at the centre of the window
-            rectangleSize.X = SceneWidth * _currentHeight / SceneHeight;
-            rectangleOffset.X = (_currentWidth - rectangleSize.X) / 2;
+            _sceneSize.Width = SceneWidth * _currentHeight / SceneHeight;
+            _sceneSize.X = (_currentWidth - _sceneSize.Width) / 2;
         }
         else if (windowAspect < sceneAspect) //if window aspect ratio is taller than scene aspect ratio
         {
             //adjust the height of the scene so it has the correct aspect ratio and position the scene at the centre of the window
-            rectangleSize.Y = SceneHeight * _currentWidth / SceneWidth;
-            rectangleOffset.Y = (_currentHeight - rectangleSize.Y) / 2;
+            _sceneSize.Height = SceneHeight * _currentWidth / SceneWidth;
+            _sceneSize.Y = (_currentHeight - _sceneSize.Height) / 2;
         }
-        
-        _sceneSize = new Rectangle(rectangleOffset, rectangleSize); //update the size of the scene with calculated values
     }
 }
