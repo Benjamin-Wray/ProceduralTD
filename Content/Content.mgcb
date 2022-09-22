@@ -241,18 +241,6 @@
 /processorParam:TextureFormat=Color
 /build:images/ui/button_background.png
 
-#begin images/ui/button_frame.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:images/ui/button_frame.png
-
 #begin images/ui/icons/coin.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -457,7 +445,7 @@
 /processorParam:TextureFormat=Color
 /build:images/ui/towers/landmine.png
 
-#begin images/ui/towers/nailgun.png
+#begin images/ui/towers/nailgun_base.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -467,7 +455,19 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:images/ui/towers/nailgun.png
+/build:images/ui/towers/nailgun_base.png
+
+#begin images/ui/towers/nailgun_top.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:images/ui/towers/nailgun_top.png
 
 #begin images/ui/towers/sniper_base.png
 /importer:TextureImporter

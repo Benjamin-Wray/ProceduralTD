@@ -8,7 +8,9 @@ internal static class StateMachine
     {
         Title,
         LoadingMap,
-        MainGame
+        PlaceBase,
+        Wave,
+        Downtime
     }
 
     internal enum Action
@@ -38,7 +40,7 @@ internal static class StateMachine
                 TitleScreen.LoadMap();
                 break;
             case (State.LoadingMap, Action.BeginGame): //runs when the map has finished being generated
-                CurrentState = State.MainGame;
+                CurrentState = State.PlaceBase;
                 break;
         }
     }
@@ -54,8 +56,8 @@ internal static class StateMachine
     {
         WindowManager.LoadContent();
         TitleScreen.LoadContent();
-        Ui.LoadContent();
         Camera.LoadContent();
+        Ui.LoadContent();
     }
 
     //runs every frame, mainly used for user input
@@ -71,8 +73,10 @@ internal static class StateMachine
             case State.LoadingMap:
                 TitleScreen.PlayLoadingAnimation(gameTime);
                 break;
-            case State.MainGame:
+            case State.PlaceBase:
+            case State.Wave:
                 Camera.MoveCamera(gameTime);
+                TowerPlacement.Update();
                 Ui.Update();
                 break;
         }
@@ -88,7 +92,7 @@ internal static class StateMachine
             case State.LoadingMap: //the title screen is still displayed while the map is being generated
                 TitleScreen.Draw();
                 break;
-            case State.MainGame:
+            case State.PlaceBase:
                 Ui.Draw();
                 break;
         }

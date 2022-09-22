@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -92,7 +91,7 @@ public static class TitleScreen
         _seedBoxPosition = new Vector2(TitleTarget.Width / 2 - (_seedBox.Width + SeedStartSpace + _startButtonFrames[_startButtonIndex].Width) / 2, TitleOffset + _title.Height + SeedOffset);
         _seedPosition = _seedBoxPosition + new Vector2(25, 2);
         _startRectangle = new Rectangle((int)(_seedBoxPosition.X + _seedBox.Width + SeedStartSpace), (int)_seedBoxPosition.Y + _seedBox.Height / 2 - _startButtonFrames[_startButtonIndex].Height / 2, _startButtonFrames[_startButtonIndex].Width, _startButtonFrames[_startButtonIndex].Height);
-        _loadingPosition = new Vector2(TitleTarget.Width - _loadingFrames[^1].Width - 1, TitleTarget.Height - _loadingFrames[^1].Height - 1);
+        _loadingPosition = new Vector2(TitleTarget.Width - _loadingFrames[_loadingIndex].Width - 1, TitleTarget.Height - _loadingFrames[_loadingIndex].Height - 1);
     }
     
     internal static void Update()
@@ -120,7 +119,7 @@ public static class TitleScreen
 
         //mouse input
         MouseState mouseState = Mouse.GetState();
-        Point mousePosition = WindowManager.GetMouseInRectangle(mouseState.Position, TitleTarget.Bounds);
+        Point mousePosition = WindowManager.GetMouseInRectangle(TitleTarget.Bounds);
 
         switch (_startRectangle.Contains(mousePosition), mouseState.LeftButton)
         {
@@ -179,7 +178,7 @@ public static class TitleScreen
         Main.SpriteBatch.Draw(_title, _titlePosition, TitleColour); //draw title
         Main.SpriteBatch.Draw(_startButtonFrames[_startButtonIndex], _startRectangle, Color.White); //draw start button
         Main.SpriteBatch.Draw(_seedBox, _seedBoxPosition, Color.White); //draw seed input box
-        if (_seed != "") Ui.DrawNumber(_seed, _seedPosition, TextColour); //draw seed in input box if necessary 
+        Ui.DrawNumber(_seed, _seedPosition, TextColour); //draw seed in input box if necessary 
         if (StateMachine.CurrentState == StateMachine.State.LoadingMap) Main.SpriteBatch.Draw(_loadingFrames[_loadingIndex], _loadingPosition, TextColour); //draw loading animation if the map is being generated
         Main.SpriteBatch.End();
     }

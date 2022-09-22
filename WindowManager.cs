@@ -8,7 +8,7 @@ namespace ProceduralTD;
 public static class WindowManager
 {
     internal static RenderTarget2D Scene { get; private set; } //the whole game will be drawn to this render target so it can be scaled to any resolution
-    
+
     private static Texture2D _cursor; //mouse cursor texture
 
     private static bool _f11Down; //boolean for keeping track of if the f11 key is currently down
@@ -50,8 +50,8 @@ public static class WindowManager
         int height = Main.Graphics.GraphicsDevice.Viewport.Height;
         
         //clamp minimum window size to size of scene
-        if (width < SceneWidth) Main.Graphics.PreferredBackBufferWidth = SceneWidth;
-        if (height < SceneHeight) Main.Graphics.PreferredBackBufferHeight = SceneHeight;
+        if (width < SceneWidth) {Main.Graphics.PreferredBackBufferWidth = SceneWidth; Console.WriteLine("x");}
+        if (height < SceneHeight) {Main.Graphics.PreferredBackBufferHeight = SceneHeight; Console.WriteLine("y");}
         Main.Graphics.ApplyChanges();
         
         SetSceneSize(); //update the size and position of the scene render target to fit new window size
@@ -72,8 +72,9 @@ public static class WindowManager
         else if (keyboardState.IsKeyUp(Keys.F11)) _f11Down = false;
     }
 
-    internal static Point GetMouseInRectangle(Point mousePosition, Rectangle renderTargetBounds)
+    internal static Point GetMouseInRectangle(Rectangle renderTargetBounds)
     {
+        Point mousePosition = Mouse.GetState().Position;
         //normalises the mouse position between the scene bounds and multiplies it by the dimensions of the render target
         mousePosition.X = (int)(MapGenerator.Normalize(mousePosition.X, _sceneSize.Left, _sceneSize.Right) * renderTargetBounds.Width);
         mousePosition.Y = (int)(MapGenerator.Normalize(mousePosition.Y, _sceneSize.Top, _sceneSize.Bottom) * renderTargetBounds.Height);
@@ -84,10 +85,12 @@ public static class WindowManager
     //draws the mouse to the screen
     private static void DrawMouse()
     {
+        Vector2 newMousePosition = GetMouseInRectangle(Scene.Bounds).ToVector2(); //get the position of the mouse on the render target
+        
+        if (Ui.Selected != null && Camera.CameraTarget.Bounds.Contains(newMousePosition)) return;
+        
         Main.Graphics.GraphicsDevice.SetRenderTarget(Scene);
 
-        Vector2 newMousePosition = GetMouseInRectangle(Mouse.GetState().Position, Scene.Bounds).ToVector2(); //get the position of the mouse on the render target
-        
         Main.SpriteBatch.Begin();
         Main.SpriteBatch.Draw(_cursor, newMousePosition, Color.White); //draw the mouse to the render target
         Ui.DrawPrice(newMousePosition, _cursor);
