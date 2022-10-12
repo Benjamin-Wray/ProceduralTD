@@ -48,9 +48,7 @@ namespace ProceduralTD
             });
 
             NoiseMap = NormalizeMap(NoiseMap);
-            
-            Camera.GenerateColourMap();
-            
+
             StateMachine.ChangeState(StateMachine.Action.BeginGame);
         }
 

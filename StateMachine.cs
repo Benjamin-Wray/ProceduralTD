@@ -8,16 +8,16 @@ internal static class StateMachine
     {
         Title,
         LoadingMap,
-        PlaceBase,
-        Wave,
-        Downtime
+        PlaceCastle,
+        Wave
     }
 
     internal enum Action
     {
         StartProgram,
         LoadMap,
-        BeginGame
+        BeginGame,
+        PlaceCastle
     }
 
     //the state machine's current state
@@ -40,7 +40,12 @@ internal static class StateMachine
                 TitleScreen.LoadMap();
                 break;
             case (State.LoadingMap, Action.BeginGame): //runs when the map has finished being generated
-                CurrentState = State.PlaceBase;
+                CurrentState = State.PlaceCastle;
+                TowerPlacement.SelectCastle();
+                break;
+            case (State.PlaceCastle, Action.PlaceCastle):
+                CurrentState = State.Wave;
+                
                 break;
         }
     }
@@ -56,7 +61,7 @@ internal static class StateMachine
     {
         WindowManager.LoadContent();
         TitleScreen.LoadContent();
-        Camera.LoadContent();
+        TowerPlacement.LoadContent();
         Ui.LoadContent();
     }
 
@@ -73,7 +78,10 @@ internal static class StateMachine
             case State.LoadingMap:
                 TitleScreen.PlayLoadingAnimation(gameTime);
                 break;
-            case State.PlaceBase:
+            case State.PlaceCastle:
+                Camera.MoveCamera(gameTime);
+                TowerPlacement.Update();
+                break;
             case State.Wave:
                 Camera.MoveCamera(gameTime);
                 TowerPlacement.Update();
@@ -92,7 +100,10 @@ internal static class StateMachine
             case State.LoadingMap: //the title screen is still displayed while the map is being generated
                 TitleScreen.Draw();
                 break;
-            case State.PlaceBase:
+            case State.PlaceCastle:
+                Ui.Draw();
+                break;
+            case State.Wave:
                 Ui.Draw();
                 break;
         }

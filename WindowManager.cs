@@ -22,8 +22,8 @@ public static class WindowManager
     private static int _windowedHeight;
 
     //scene dimensions
-    private const int SceneWidth = 512;
-    private const int SceneHeight = 288;
+    private const int SceneWidth = 1920;
+    private const int SceneHeight = 1080;
     private static Rectangle _sceneSize;
 
     internal static void Initialize()
@@ -45,15 +45,6 @@ public static class WindowManager
     //called whenever the game window is resized
     private static void OnResize(object? sender, EventArgs eventArgs)
     {
-        //get the current dimensions of the window
-        int width = Main.Graphics.GraphicsDevice.Viewport.Width;
-        int height = Main.Graphics.GraphicsDevice.Viewport.Height;
-        
-        //clamp minimum window size to size of scene
-        if (width < SceneWidth) {Main.Graphics.PreferredBackBufferWidth = SceneWidth; Console.WriteLine("x");}
-        if (height < SceneHeight) {Main.Graphics.PreferredBackBufferHeight = SceneHeight; Console.WriteLine("y");}
-        Main.Graphics.ApplyChanges();
-        
         SetSceneSize(); //update the size and position of the scene render target to fit new window size
     }
 
@@ -86,14 +77,27 @@ public static class WindowManager
     private static void DrawMouse()
     {
         Vector2 newMousePosition = GetMouseInRectangle(Scene.Bounds).ToVector2(); //get the position of the mouse on the render target
-        
-        if (Ui.Selected != null && Camera.CameraTarget.Bounds.Contains(newMousePosition)) return;
-        
-        Main.Graphics.GraphicsDevice.SetRenderTarget(Scene);
+        float scale = _sceneSize.Height / (float)Ui.UiHeight;
 
-        Main.SpriteBatch.Begin();
-        Main.SpriteBatch.Draw(_cursor, newMousePosition, Color.White); //draw the mouse to the render target
-        Ui.DrawPrice(newMousePosition, _cursor);
+        Texture2D cursorTexture = _cursor;
+        Color colour = Color.White;
+        if (Camera.CameraTarget.Bounds.Contains(GetMouseInRectangle(Scene.Bounds)))
+        {
+            if (Ui.Selected >= 4)
+            {
+                cursorTexture = Ui.ButtonDrawOrder[Ui.Selected.Value];
+                newMousePosition = Ui.CentrePosition(newMousePosition, cursorTexture, scale);
+                colour.A = (byte)(colour.A * .8f);
+            }
+            else if (TowerPlacement.SelectedTower != null) cursorTexture = new Texture2D(Main.Graphics.GraphicsDevice, cursorTexture.Width, cursorTexture.Height);
+        }
+
+        Main.Graphics.GraphicsDevice.SetRenderTarget(Scene);
+        Main.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
+
+        Main.SpriteBatch.Draw(cursorTexture, newMousePosition, null, colour, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f); //draw the mouse to the render target
+        Ui.DrawCursorPrice(newMousePosition, cursorTexture, scale);
+        
         Main.SpriteBatch.End();
     }
     

@@ -109,18 +109,6 @@
 /processorParam:TextureFormat=Color
 /build:images/map/castle.png
 
-#begin images/map/pixel.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:images/map/pixel.png
-
 #begin images/title/loading/loading1.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -445,7 +433,7 @@
 /processorParam:TextureFormat=Color
 /build:images/ui/towers/landmine.png
 
-#begin images/ui/towers/nailgun_base.png
+#begin images/ui/towers/nailgun.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -455,19 +443,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:images/ui/towers/nailgun_base.png
-
-#begin images/ui/towers/nailgun_top.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:images/ui/towers/nailgun_top.png
+/build:images/ui/towers/nailgun.png
 
 #begin images/ui/towers/sniper_base.png
 /importer:TextureImporter

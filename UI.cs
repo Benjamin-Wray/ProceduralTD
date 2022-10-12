@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Xml;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -9,19 +8,12 @@ namespace ProceduralTD;
 
 internal static class Ui
 {
-    internal enum Towers
-    {
-        LandMine,
-        Cannon,
-        NailGun,
-        Sniper,
-        Upgrade,
-        Sell
-    }
-
-    internal const int UiWidth = 256;
-    internal const int UiHeight = 144;
-    private static readonly RenderTarget2D UiTarget = new(Main.Graphics.GraphicsDevice, UiWidth, UiHeight); //this render target will contain all ui elements that do change while the program is running
+    internal const int UiWidth = 480;
+    internal const int UiHeight = 270;
+    internal const int HudWidth = UiWidth / 2 ;
+    internal const int HudHeight = UiHeight / 2;
+    internal static readonly RenderTarget2D UiTarget = new(Main.Graphics.GraphicsDevice, UiWidth, UiHeight); //this render target will contain the HUD
+    private static readonly RenderTarget2D HudTarget = new(Main.Graphics.GraphicsDevice, HudWidth, HudHeight); //this render target will contain the HUD
 
     //colours used when drawing to the screen
     private static readonly Color MenuBackground = new(122, 119, 153);
@@ -29,24 +21,18 @@ internal static class Ui
     private static readonly Color HoverColour = new(97, 95, 132);
     private static readonly Color SelectedColour = new(134, 144, 178);
     private static readonly Color TextColour = Color.Black;
-    internal static readonly Color CanBuyColour = new(81, 136, 34);
+    internal static readonly Color CanBuyColour = Color.Gold;
     internal static readonly Color CannotBuyColour = new(130, 33, 29);
 
     //background drawn behind the button icon
     private static Texture2D _buttonBackground;
 
-    //tower textures
-    internal static Texture2D[] LandMineTexture;
-    internal static Texture2D[] CannonTexture;
-    internal static Texture2D[] NailGunTexture;
-    internal static Texture2D[] SniperTexture;
-    
     //utility textures
-    private static Texture2D[] _upgrade;
-    private static Texture2D[] _sell;
+    private static Texture2D _upgrade;
+    private static Texture2D _sell;
     
     //the order the buttons will be drawn in
-    internal static Texture2D[][] ButtonDrawOrder;
+    internal static readonly Texture2D[] ButtonDrawOrder = new Texture2D[6];
 
     //counter icon textures
     private static Texture2D _heart;
@@ -56,63 +42,47 @@ internal static class Ui
     private static bool _leftMouseDown;
     
     private static int? _hover;
-    internal static int? Selected;
-    
+
+    private static int? _selected;
+    internal static int? Selected
+    {
+        get => _selected;
+        private set
+        {
+            _selected = value;
+            TowerPlacement.SelectTower();
+        }
+    }
+
     //textures for numbers 0-9
     private static Dictionary<char, Texture2D> _digits;
 
     //draw positions
     private const int ButtonSize = 32;
-    private static readonly Vector2 ButtonPosition = new(184 + ButtonSize / 2, 32 + ButtonSize / 2);
-    private static readonly Vector2 HeartPosition = new(186, 3);
+    private static readonly Vector2 ButtonPosition = new(168 + ButtonSize / 2, 32 + ButtonSize / 2);
+    private static readonly Vector2 HeartPosition = new(168, 3);
     private static Vector2 _healthPosition;
-    private static readonly Vector2 CoinPosition = new(186, 17);
+    private static readonly Vector2 CoinPosition = new(168, 17);
     private static Vector2 _moneyPosition;
     private static readonly Vector2 WavePosition = new(4, 4);
     private static Vector2 _waveCountPosition;
 
-    private static int? _cursorPrice;
+    internal static int? CursorPrice;
     private static readonly int?[] Prices = 
     {
-        LandMine.Price, Cannon.Price,
-        NailGun.Price, Sniper.Price,
+        new LandMine().BuyPrice, new Cannon().BuyPrice,
+        new NailGun().BuyPrice, new Sniper().BuyPrice,
         null, null
     };
-
-    private const int Money = 45;
-    private const int Health = 100;
-    private const int CurrentWave = 2;
 
     internal static void LoadContent()
     {
         _buttonBackground = Main.ContentManager.Load<Texture2D>("images/ui/button_background");
 
-        LandMineTexture = new[] { Main.ContentManager.Load<Texture2D>("images/ui/towers/landmine") };
-        CannonTexture = new []
-        {
-            Main.ContentManager.Load<Texture2D>("images/ui/towers/cannon_base"),
-            Main.ContentManager.Load<Texture2D>("images/ui/towers/cannon_top")
-        };
-        NailGunTexture = new[]
-        {
-            Main.ContentManager.Load<Texture2D>("images/ui/towers/nailgun_base"),
-            Main.ContentManager.Load<Texture2D>("images/ui/towers/nailgun_top")
-        };
-        SniperTexture = new []
-        {
-            Main.ContentManager.Load<Texture2D>("images/ui/towers/sniper_base"),
-            Main.ContentManager.Load<Texture2D>("images/ui/towers/sniper_top")
-        };
+        _upgrade = Main.ContentManager.Load<Texture2D>("images/ui/utilities/upgrade"); 
+        _sell = Main.ContentManager.Load<Texture2D>("images/ui/utilities/sell");
         
-        _upgrade = new[] { Main.ContentManager.Load<Texture2D>("images/ui/utilities/upgrade") }; 
-        _sell = new[] { Main.ContentManager.Load<Texture2D>("images/ui/utilities/sell") };
-
-        ButtonDrawOrder = new[]
-        {
-            LandMineTexture, CannonTexture,
-            NailGunTexture, SniperTexture,
-            _upgrade, _sell
-        };
+        DrawTowerIcons();
 
         //the icons for indicating the player's current health and balance
         _heart = Main.ContentManager.Load<Texture2D>("images/ui/icons/heart");
@@ -137,6 +107,34 @@ internal static class Ui
         CalculateTextPosition();
     }
 
+    private static void DrawTowerIcons()
+    {
+        Texture2D[][] towers =
+        {
+            new[] {TowerPlacement.LandMineBase},
+            new[] {TowerPlacement.CannonBase, TowerPlacement.CannonTop},
+            new[] {TowerPlacement.NailGunBase},
+            new[] {TowerPlacement.SniperBase, TowerPlacement.SniperTop}
+        };
+        RenderTarget2D[] icons = new RenderTarget2D[towers.Length];
+
+        for (int i = 0; i < towers.Length; i++)
+        {
+            icons[i] = new RenderTarget2D(Main.Graphics.GraphicsDevice, ButtonSize, ButtonSize);
+            Main.Graphics.GraphicsDevice.SetRenderTarget(icons[i]);
+            Main.Graphics.GraphicsDevice.Clear(Color.Transparent);
+            
+            Main.SpriteBatch.Begin();
+            foreach (Texture2D texture in towers[i]) Main.SpriteBatch.Draw(texture, CentrePosition(icons[i].Bounds.Center.ToVector2(), texture), Color.White);
+            Main.SpriteBatch.End();
+
+            ButtonDrawOrder[i] = icons[i];
+        }
+
+        ButtonDrawOrder[4] = _upgrade;
+        ButtonDrawOrder[5] = _sell;
+    }
+    
     private static void CalculateTextPosition()
     {
         _healthPosition = HeartPosition + new Vector2(_heart.Width + 2, 2);
@@ -146,12 +144,18 @@ internal static class Ui
 
     internal static void Update()
     {
+        if (Camera.CameraTarget.Bounds.Contains(WindowManager.GetMouseInRectangle(WindowManager.Scene.Bounds)))
+        {
+            if (Selected < 4) CursorPrice = null;
+            return;
+        }
+        
         MouseState mouseState = Mouse.GetState();
-        Point mousePosition = WindowManager.GetMouseInRectangle(UiTarget.Bounds); //gets the position of the mouse on the ui render target
+        Point mousePosition = WindowManager.GetMouseInRectangle(HudTarget.Bounds); //gets the position of the mouse on the ui render target
         
         //set hover and cursor price to null at the start of each frame so the hover frame is removed when the mouse is not over a button
         _hover = null; 
-        _cursorPrice = null;
+        CursorPrice = null;
         
         for (int i = 0; i < ButtonDrawOrder.Length; i++)
         {
@@ -175,19 +179,19 @@ internal static class Ui
                 }
 
                 _hover = i; //sets the hover frame to be drawn over the button the mouse is currently over
-                _cursorPrice = Prices[i]; //sets the price of the tower to be drawn by the cursor
+                CursorPrice = Prices[i]; //sets the price of the tower to be drawn by the cursor
             }
         }
     }
 
-    internal static Vector2 CentrePosition(Vector2 position, Texture2D texture)
+    internal static Vector2 CentrePosition(Vector2 position, Texture2D texture, float scale = 1)
     {
-        return position - texture.Bounds.Size.ToVector2() / 2f;
+        return position - texture.Bounds.Size.ToVector2() * scale / 2f;
     }
     
     private static void DrawUi()
     {
-        Main.Graphics.GraphicsDevice.SetRenderTarget(UiTarget);
+        Main.Graphics.GraphicsDevice.SetRenderTarget(HudTarget);
         Main.Graphics.GraphicsDevice.Clear(Color.Transparent); //cleared to transparent so it can be drawn on top of everything else
         
         Main.SpriteBatch.Begin();
@@ -206,7 +210,7 @@ internal static class Ui
             else if (_hover == i) backgroundColour = HoverColour;
             
             Main.SpriteBatch.Draw(_buttonBackground, CentrePosition(position, _buttonBackground), backgroundColour); //draw the background for the button
-            foreach (Texture2D texture in ButtonDrawOrder[i]) Main.SpriteBatch.Draw(texture, CentrePosition(position, texture), Color.White); //draw the button icon
+            Main.SpriteBatch.Draw(ButtonDrawOrder[i], CentrePosition(position, ButtonDrawOrder[i]), Color.White); //draw the button icon
         }
         
         //draw the icons for each counter
@@ -215,37 +219,33 @@ internal static class Ui
         Main.SpriteBatch.Draw(_wave, WavePosition, TextColour);
 
         //draw the numbers for health, money and current wave
-        DrawNumber(Health.ToString(), _healthPosition, TextColour);
-        DrawNumber(Money.ToString(), _moneyPosition, TextColour, true);
-        DrawNumber(CurrentWave.ToString(), _waveCountPosition, TextColour);
+        DrawNumber(Player.Health.ToString(), _healthPosition, TextColour);
+        DrawNumber(Player.Money.ToString(), _moneyPosition, TextColour, true);
+        DrawNumber(Player.CurrentWave.ToString(), _waveCountPosition, TextColour);
         
         Main.SpriteBatch.End();
     }
 
-    internal static void DrawPrice(Vector2 mousePosition, Texture2D cursor)
+    internal static void DrawCursorPrice(Vector2 mousePosition, Texture2D cursor, float scale)
     {
-        if (_cursorPrice == null) return;
-        
-        Vector2 drawPosition = mousePosition + new Vector2(cursor.Width / 2f, -_digits['£'].Height);
-        Color drawColour = Money >= _cursorPrice.Value ? CanBuyColour : CannotBuyColour;
-        DrawNumber(_cursorPrice.Value.ToString(), drawPosition, drawColour, true); //draws price of tower next to cursor
+        if (CursorPrice == null) return;
+
+        Vector2 drawPosition = mousePosition + new Vector2(cursor.Width * scale, -_digits['£'].Height * scale);
+        Color drawColour = Player.Money >= CursorPrice.Value ? CanBuyColour : CannotBuyColour;
+        DrawNumber(CursorPrice.Value.ToString(), drawPosition, drawColour, true, scale); //draws price of tower next to cursor
     }
     
-    internal static void DrawNumber(string number, Vector2 drawPosition, Color colour, bool isPrice = false)
+    internal static void DrawNumber(string number, Vector2 drawPosition, Color colour, bool isPrice = false, float scale = 1)
     {
-        if (isPrice)
-        {
-            Main.SpriteBatch.Draw(_digits['£'], drawPosition, colour); //draw the selected texture to the render target
-            drawPosition.X += _digits['£'].Width + 1; //move the position to the right so the next digit is drawn to the right of the previous one
-        }
+        if (isPrice) number = '£' + number; //add pound symbol to the front of the number if we are drawing a price
         
         //c# cannot iterate through digits in an integer so we must convert it to a string so it can iterate through each character
         //we then convert the character back into an int and use as an index it to get the corresponding texture from our array of digit textures
         foreach (char digit in number)
         {
             Texture2D texture = _digits[digit];
-            Main.SpriteBatch.Draw(texture, drawPosition, colour); //draw the selected texture to the render target
-            drawPosition.X += texture.Width + 1; //move the position to the right so the next digit is drawn to the right of the previous one
+            Main.SpriteBatch.Draw(texture, drawPosition, null, colour, 0, Vector2.Zero, scale, SpriteEffects.None, 0); //draw the selected texture to the render target
+            drawPosition.X += texture.Width * scale + scale; //move the position to the right so the next digit is drawn to the right of the previous one
         }
     }
     
@@ -253,18 +253,20 @@ internal static class Ui
     {
         DrawUi();
         Camera.DrawMap();
-        TowerPlacement.Draw();
 
+        Main.Graphics.GraphicsDevice.SetRenderTarget(UiTarget); //start drawing to the main render target
+        Main.Graphics.GraphicsDevice.Clear(Color.Transparent); //clear scene with the menu background colour
+
+        Main.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
+        Main.SpriteBatch.Draw(HudTarget, UiTarget.Bounds, StateMachine.CurrentState == StateMachine.State.PlaceCastle ? Color.LightGray : Color.White); //draw the ui and scale it to the size of the scene
+        Main.SpriteBatch.End();
+        
         Main.Graphics.GraphicsDevice.SetRenderTarget(WindowManager.Scene); //start drawing to the main render target
         Main.Graphics.GraphicsDevice.Clear(MenuBackground); //clear scene with the menu background colour
 
         Main.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
-
-        //draw the ui and scale it to the size of the scene
-        Main.SpriteBatch.Draw(Camera.CameraTarget, Camera.CameraTarget.Bounds, Color.White);
-        Main.SpriteBatch.Draw(TowerPlacement.TowerTarget, Vector2.Zero, Color.White);
+        Main.SpriteBatch.Draw(Camera.CameraTarget, Vector2.Zero, Color.White);
         Main.SpriteBatch.Draw(UiTarget, WindowManager.Scene.Bounds, Color.White);
-
         Main.SpriteBatch.End();
     }
 }

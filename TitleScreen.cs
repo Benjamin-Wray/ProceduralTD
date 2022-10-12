@@ -9,7 +9,7 @@ namespace ProceduralTD;
 
 public static class TitleScreen
 {
-    private static readonly RenderTarget2D TitleTarget = new(Main.Graphics.GraphicsDevice, Ui.UiWidth / 2, Ui.UiHeight / 2);
+    private static readonly RenderTarget2D TitleTarget = new(Main.Graphics.GraphicsDevice, Ui.HudWidth / 2, Ui.HudHeight / 2);
     
     //textures
     private static Texture2D _title;
@@ -60,7 +60,7 @@ public static class TitleScreen
     
     private static bool _isBackspaceDown;
 
-    private static int _timer; //keeps track of how much time has passed
+    private static float _timer; //keeps track of how much time has passed
     private const int NextFrameTime = 500; //the number of milliseconds between frames in the loading animation
 
     internal static void LoadContent()
@@ -156,9 +156,9 @@ public static class TitleScreen
     {
         if (StateMachine.CurrentState == StateMachine.State.LoadingMap) //only executes when the map is being loaded
         {
-            _timer += gameTime.ElapsedGameTime.Milliseconds; //updates the timer since the last frame
+            _timer += (float)gameTime.ElapsedGameTime.TotalMilliseconds; //updates the timer since the last frame
 
-            if (_timer > NextFrameTime) //executes once a certain amount of time has passed
+            if (_timer >= NextFrameTime) //executes once a certain amount of time has passed
             {
                 //switches to the next frame in the loading texture's animation
                 //MODed by number of frames so the animation loops back to the start once it reaches the end

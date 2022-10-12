@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -9,14 +8,14 @@ namespace ProceduralTD;
 
 internal static class Camera
 {
-    internal static readonly RenderTarget2D CameraTarget = new(Main.Graphics.GraphicsDevice, CameraWidth, CameraHeight);
+    internal const int CameraWidth = Ui.UiWidth * 2/3; //the camera's width is two thirds of the ui
+    internal const int CameraHeight = Ui.UiHeight; //the camera's height is the same as the ui
     
-    internal const int CameraWidth = 352;
-    internal const int CameraHeight = 288;
+    private static Texture2D? _mapTexture;
+    internal static readonly RenderTarget2D CameraTarget = new(Main.Graphics.GraphicsDevice, WindowManager.Scene.Width  * 2/3, WindowManager.Scene.Height);
 
-    private const int CameraRangeX = MapGenerator.MapWidth - CameraWidth;
-    private const int CameraRangeY = MapGenerator.MapHeight - CameraHeight;
-    internal static Vector2 CameraPosition = new(CameraRangeX / 2f, CameraRangeY / 2f); //camera initially positioned in the middle of the map;
+    private static readonly Vector2 CameraRange = new(MapGenerator.MapWidth - CameraWidth, MapGenerator.MapHeight - CameraHeight);
+    internal static Vector2 CameraPosition = CameraRange / -2; //camera initially positioned in the middle of the map;
 
     private const float WaterLevel = .4f;
     private static readonly Dictionary<float, Color> MapColors = new()
@@ -42,34 +41,32 @@ internal static class Camera
         {Keys.Right, new Vector2(1, 0)}
     };
 
-    private const float MoveSpeed = 200f; //how fast the camera moves
-    private static Color[,] _colourMap;
+    private const float MoveSpeed = 200; //how fast the camera moves
 
-    private static Texture2D _pixel;
-    
-    internal static void LoadContent()
+    private static void GenerateColourMap() //generate 2D array of colours to be drawn to the screen to represent height
     {
-        _pixel = Main.ContentManager.Load<Texture2D>("images/map/pixel");
-    }   
+        _mapTexture = new Texture2D(Main.Graphics.GraphicsDevice, MapGenerator.MapWidth, MapGenerator.MapHeight);
 
-    internal static void GenerateColourMap() //generate 2D array of colours to be drawn to the screen to represent height
-    {
-        _colourMap = new Color[MapGenerator.MapWidth, MapGenerator.MapHeight]; //create 2d array with the same size as the heightmap
+        Color[] colourMap = new Color[_mapTexture.Width * _mapTexture.Height];
 
-        for (int y = 0; y < MapGenerator.MapHeight; y++)
+        for (int y = 0; y < _mapTexture.Height; y++)
         {
-            for (int x = 0; x < MapGenerator.MapWidth; x++)
+            for (int x = 0; x < _mapTexture.Width; x++)
             {
                 //assign colours based on the height of each point on the heightmap
-                foreach (KeyValuePair<float,Color> pair in MapColors)
+                foreach (KeyValuePair<float, Color> pair in MapColors)
+                {
                     if (MapGenerator.NoiseMap[x, y] <= pair.Key)
                     {
-                        _colourMap[x, y] = pair.Value;
+                        colourMap[x % _mapTexture.Width + y * _mapTexture.Width] = pair.Value;
                         break;
                     }
+                }
                 if (MapGenerator.NoiseMap[x, y] <= WaterLevel) TowerPlacement.InvalidPositions[x, y] = true;
-            };
-        };
+            }
+        }
+        
+        _mapTexture.SetData(colourMap);
     }
     
     //called every frame
@@ -79,7 +76,8 @@ internal static class Camera
         Vector2 direction = Vector2.Zero; //vector that represents the direction the camera will move this frame
         
         //set direction from keyboard input
-        foreach(Keys key in keyboardState.GetPressedKeys()) if (MovementKeys.ContainsKey(key)) direction += MovementKeys[key];
+        foreach(Keys key in keyboardState.GetPressedKeys()) if (MovementKeys.ContainsKey(key)) direction -= MovementKeys[key];
+        direction = new Vector2(Math.Clamp(direction.X, -1, 1), Math.Clamp(direction.Y, -1, 1));
         
         //if the direction was changed
         if (direction != Vector2.Zero)
@@ -89,41 +87,24 @@ internal static class Camera
             
             //move the camera 
             Vector2 newCameraPosition = CameraPosition + direction * MoveSpeed * deltaTime;
-            
-            //move horizontally
-            CameraPosition.X = newCameraPosition.X switch
-            {
-                < 0 => 0,
-                > CameraRangeX => CameraRangeX,
-                _ => newCameraPosition.X
-            };
-            //move vertically
-            CameraPosition.Y = newCameraPosition.Y switch
-            {
-                < 0 => 0,
-                > CameraRangeY => CameraRangeY,
-                _ => newCameraPosition.Y
-            };
+
+            CameraPosition = new Vector2(Math.Clamp(newCameraPosition.X, -CameraRange.X, 0), Math.Clamp(newCameraPosition.Y, -CameraRange.Y, 0));
         }
     }
     
     internal static void DrawMap() //called every frame after update
     {
+        if (_mapTexture == null) GenerateColourMap();
+
+        TowerPlacement.Draw();
+        float cameraScale = WindowManager.Scene.Height / (float)CameraHeight;
+
         Main.Graphics.GraphicsDevice.SetRenderTarget(CameraTarget);
         Main.Graphics.GraphicsDevice.Clear(Color.Transparent);
-        
-        Main.SpriteBatch.Begin();
-        
-        for (int y = 0; y < CameraHeight; y++)
-        {
-            for (int x = 0; x < CameraWidth; x++)
-            {
-                Vector2 position = new Vector2(x, y); //position on the screen where the point will be drawn
-                Color colour = _colourMap[x + (int)Math.Floor(CameraPosition.X), y + (int)Math.Floor(CameraPosition.Y)]; //the colour is selected based on the position on the map
-                Main.SpriteBatch.Draw(_pixel, position, colour); //pixel is drawn to the screen
-            }
-        }
-        
+
+        Main.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
+        Main.SpriteBatch.Draw(_mapTexture, CameraPosition * cameraScale, null, Color.White, 0, Vector2.Zero, cameraScale, SpriteEffects.None, 0f);
+        Main.SpriteBatch.Draw(TowerPlacement.TowerTarget, CameraPosition * cameraScale, null, Color.White, 0, Vector2.Zero, cameraScale, SpriteEffects.None, 0);
         Main.SpriteBatch.End();
     }
 }

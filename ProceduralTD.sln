@@ -12,5 +12,6 @@ Global
 		{DF1EEFB8-3923-4E99-93C9-2C963D99B470}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF1EEFB8-3923-4E99-93C9-2C963D99B470}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DF1EEFB8-3923-4E99-93C9-2C963D99B470}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF1EEFB8-3923-4E99-93C9-2C963D99B470}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 	EndGlobalSection
 EndGlobal
