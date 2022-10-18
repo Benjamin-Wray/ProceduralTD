@@ -83,9 +83,9 @@ public static class WindowManager
         Color colour = Color.White;
         if (Camera.CameraTarget.Bounds.Contains(GetMouseInRectangle(Scene.Bounds)))
         {
-            if (Ui.Selected >= 4)
+            if (Ui.SelectedOption >= 4)
             {
-                cursorTexture = Ui.ButtonDrawOrder[Ui.Selected.Value];
+                cursorTexture = Ui.ButtonDrawOrder[Ui.SelectedOption.Value];
                 newMousePosition = Ui.CentrePosition(newMousePosition, cursorTexture, scale);
                 colour.A = (byte)(colour.A * .8f);
             }

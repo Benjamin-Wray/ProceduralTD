@@ -21,7 +21,7 @@ internal static class Ui
     private static readonly Color HoverColour = new(97, 95, 132);
     private static readonly Color SelectedColour = new(134, 144, 178);
     private static readonly Color TextColour = Color.Black;
-    internal static readonly Color CanBuyColour = Color.Gold;
+    internal static readonly Color CanBuyColour = new(255, 240, 43);
     internal static readonly Color CannotBuyColour = new(130, 33, 29);
 
     //background drawn behind the button icon
@@ -43,13 +43,13 @@ internal static class Ui
     
     private static int? _hover;
 
-    private static int? _selected;
-    internal static int? Selected
+    private static int? _selectedOption;
+    internal static int? SelectedOption
     {
-        get => _selected;
+        get => _selectedOption;
         private set
         {
-            _selected = value;
+            _selectedOption = value;
             TowerPlacement.SelectTower();
         }
     }
@@ -146,7 +146,7 @@ internal static class Ui
     {
         if (Camera.CameraTarget.Bounds.Contains(WindowManager.GetMouseInRectangle(WindowManager.Scene.Bounds)))
         {
-            if (Selected < 4) CursorPrice = null;
+            if (SelectedOption < 4) CursorPrice = null;
             return;
         }
         
@@ -170,7 +170,7 @@ internal static class Ui
                 switch (mouseState.LeftButton, _leftMouseDown) //check if the left mouse button is down
                 {
                     case (ButtonState.Pressed, false): //only executes for the first frame the button is pressed
-                        Selected = Selected == i ? null : i; //selects the clicked button but deselects it if the button clicked is already selected
+                        SelectedOption = SelectedOption == i ? null : i; //selects the clicked button but deselects it if the button clicked is already selected
                         _leftMouseDown = true; //mouse is now down and will not select anything until released again
                         break;
                     case (ButtonState.Released, _): //executes when the mouse button is released after being pressed
@@ -206,7 +206,7 @@ internal static class Ui
             
             //select colour
             Color backgroundColour = TileBackground;
-            if (Selected == i) backgroundColour = SelectedColour;
+            if (SelectedOption == i) backgroundColour = SelectedColour;
             else if (_hover == i) backgroundColour = HoverColour;
             
             Main.SpriteBatch.Draw(_buttonBackground, CentrePosition(position, _buttonBackground), backgroundColour); //draw the background for the button
@@ -232,6 +232,7 @@ internal static class Ui
 
         Vector2 drawPosition = mousePosition + new Vector2(cursor.Width * scale, -_digits['£'].Height * scale);
         Color drawColour = Player.Money >= CursorPrice.Value ? CanBuyColour : CannotBuyColour;
+        if (_selectedOption == (int)TowerPlacement.MenuOptions.Sell) drawColour = CanBuyColour;
         DrawNumber(CursorPrice.Value.ToString(), drawPosition, drawColour, true, scale); //draws price of tower next to cursor
     }
     
@@ -258,7 +259,7 @@ internal static class Ui
         Main.Graphics.GraphicsDevice.Clear(Color.Transparent); //clear scene with the menu background colour
 
         Main.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
-        Main.SpriteBatch.Draw(HudTarget, UiTarget.Bounds, StateMachine.CurrentState == StateMachine.State.PlaceCastle ? Color.LightGray : Color.White); //draw the ui and scale it to the size of the scene
+        Main.SpriteBatch.Draw(HudTarget, UiTarget.Bounds, StateMachine.CurrentState == StateMachine.State.PlaceCastle ? Color.Gray : Color.White); //draw the ui and scale it to the size of the scene
         Main.SpriteBatch.End();
         
         Main.Graphics.GraphicsDevice.SetRenderTarget(WindowManager.Scene); //start drawing to the main render target

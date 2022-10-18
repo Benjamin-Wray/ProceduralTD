@@ -5,7 +5,7 @@ namespace ProceduralTD;
 internal static class Player
 {
     private const int MaxMoney = 99999;
-    private static int _money = 1000;
+    private static int _money = MaxMoney;
     internal static int Money
     {
         get => _money;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -13,7 +14,8 @@ internal static class Camera
     
     private static Texture2D? _mapTexture;
     internal static readonly RenderTarget2D CameraTarget = new(Main.Graphics.GraphicsDevice, WindowManager.Scene.Width  * 2/3, WindowManager.Scene.Height);
-
+    internal static readonly float CameraScale = WindowManager.Scene.Height / (float)CameraHeight;
+    
     private static readonly Vector2 CameraRange = new(MapGenerator.MapWidth - CameraWidth, MapGenerator.MapHeight - CameraHeight);
     internal static Vector2 CameraPosition = CameraRange / -2; //camera initially positioned in the middle of the map;
 
@@ -43,15 +45,15 @@ internal static class Camera
 
     private const float MoveSpeed = 200; //how fast the camera moves
 
-    private static void GenerateColourMap() //generate 2D array of colours to be drawn to the screen to represent height
+    private static void GenerateMapTexture() //generate 2D array of colours to be drawn to the screen to represent height
     {
         _mapTexture = new Texture2D(Main.Graphics.GraphicsDevice, MapGenerator.MapWidth, MapGenerator.MapHeight);
 
         Color[] colourMap = new Color[_mapTexture.Width * _mapTexture.Height];
 
-        for (int y = 0; y < _mapTexture.Height; y++)
+        Parallel.For(0, _mapTexture.Height, y =>
         {
-            for (int x = 0; x < _mapTexture.Width; x++)
+            Parallel.For(0, _mapTexture.Width, x =>
             {
                 //assign colours based on the height of each point on the heightmap
                 foreach (KeyValuePair<float, Color> pair in MapColors)
@@ -62,16 +64,19 @@ internal static class Camera
                         break;
                     }
                 }
+
                 if (MapGenerator.NoiseMap[x, y] <= WaterLevel) TowerPlacement.InvalidPositions[x, y] = true;
-            }
-        }
+            });
+        });
         
         _mapTexture.SetData(colourMap);
     }
     
     //called every frame
-    internal static void MoveCamera(GameTime gameTime)
+    internal static void Update(GameTime gameTime)
     {
+        if (_mapTexture == null) GenerateMapTexture(); //generate a map texture if it has not been generated yet
+        
         KeyboardState keyboardState = Keyboard.GetState();
         Vector2 direction = Vector2.Zero; //vector that represents the direction the camera will move this frame
         
@@ -94,17 +99,14 @@ internal static class Camera
     
     internal static void DrawMap() //called every frame after update
     {
-        if (_mapTexture == null) GenerateColourMap();
-
         TowerPlacement.Draw();
-        float cameraScale = WindowManager.Scene.Height / (float)CameraHeight;
 
         Main.Graphics.GraphicsDevice.SetRenderTarget(CameraTarget);
         Main.Graphics.GraphicsDevice.Clear(Color.Transparent);
 
         Main.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
-        Main.SpriteBatch.Draw(_mapTexture, CameraPosition * cameraScale, null, Color.White, 0, Vector2.Zero, cameraScale, SpriteEffects.None, 0f);
-        Main.SpriteBatch.Draw(TowerPlacement.TowerTarget, CameraPosition * cameraScale, null, Color.White, 0, Vector2.Zero, cameraScale, SpriteEffects.None, 0);
+        Main.SpriteBatch.Draw(_mapTexture, CameraPosition * CameraScale, null, Color.White, 0, Vector2.Zero, CameraScale, SpriteEffects.None, 0f);
+        Main.SpriteBatch.Draw(TowerPlacement.TowerTarget, CameraPosition * CameraScale, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0);
         Main.SpriteBatch.End();
     }
 }

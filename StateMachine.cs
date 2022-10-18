@@ -79,11 +79,11 @@ internal static class StateMachine
                 TitleScreen.PlayLoadingAnimation(gameTime);
                 break;
             case State.PlaceCastle:
-                Camera.MoveCamera(gameTime);
+                Camera.Update(gameTime);
                 TowerPlacement.Update();
                 break;
             case State.Wave:
-                Camera.MoveCamera(gameTime);
+                Camera.Update(gameTime);
                 TowerPlacement.Update();
                 Ui.Update();
                 break;

@@ -22,7 +22,7 @@ namespace ProceduralTD
         };
         
         //values for map generation
-        private const int MapScale = 4; //how many times bigger the map is than the camera
+        private const int MapScale = 10; //how many times bigger the map is than the camera
         internal const int MapWidth = Camera.CameraWidth * MapScale;
         internal const int MapHeight = Camera.CameraHeight * MapScale;
         private const float NoiseScale = .008f; //how "zoomed in" the noise is
