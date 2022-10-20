@@ -154,19 +154,8 @@ public static class TitleScreen
     
     internal static void PlayLoadingAnimation(GameTime gameTime)
     {
-        if (StateMachine.CurrentState == StateMachine.State.LoadingMap) //only executes when the map is being loaded
-        {
-            _timer += (float)gameTime.ElapsedGameTime.TotalMilliseconds; //updates the timer since the last frame
-
-            if (_timer >= NextFrameTime) //executes once a certain amount of time has passed
-            {
-                //switches to the next frame in the loading texture's animation
-                //MODed by number of frames so the animation loops back to the start once it reaches the end
-                _loadingIndex = (_loadingIndex + 1) % _loadingFrames.Length;
-                
-                _timer %= NextFrameTime; //resets the timer so the loading animation isn't updated until the next time interval has passed
-            }
-        }
+        //only executes when the map is being loaded
+        if (StateMachine.CurrentState == StateMachine.State.LoadingMap) Ui.PlayAnimation(gameTime, ref _timer, NextFrameTime, ref _loadingIndex, _loadingFrames.Length);
     }
 
     private static void DrawTitleScreen()

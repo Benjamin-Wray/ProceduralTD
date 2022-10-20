@@ -22,9 +22,10 @@ namespace ProceduralTD
         };
         
         //values for map generation
-        private const int MapScale = 10; //how many times bigger the map is than the camera
+        private const int MapScale = 4; //how many times bigger the map is than the camera
         internal const int MapWidth = Camera.CameraWidth * MapScale;
         internal const int MapHeight = Camera.CameraHeight * MapScale;
+        internal static readonly Rectangle MapBounds = new(0, 0, MapWidth, MapHeight);
         private const float NoiseScale = .008f; //how "zoomed in" the noise is
         private const int Octaves = 4; //how many times noise will be generated and layered on top of each other
         private const float Lacunarity = 2; //this is multiplied by the frequency of the noise every octave

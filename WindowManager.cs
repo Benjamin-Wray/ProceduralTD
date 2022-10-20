@@ -79,11 +79,11 @@ public static class WindowManager
         Vector2 newMousePosition = GetMouseInRectangle(Scene.Bounds).ToVector2(); //get the position of the mouse on the render target
         float scale = _sceneSize.Height / (float)Ui.UiHeight;
 
-        Texture2D cursorTexture = _cursor;
-        Color colour = Color.White;
+        Texture2D cursorTexture = _cursor; //sets the texture to be drawn as the cursor
+        Color colour = Color.White; //sets the initial colour to white
         if (Camera.CameraTarget.Bounds.Contains(GetMouseInRectangle(Scene.Bounds)))
         {
-            if (Ui.SelectedOption >= 4)
+            if (Ui.SelectedOption is (int)TowerPlacement.MenuOptions.Upgrade or (int)TowerPlacement.MenuOptions.Sell) //if upgrade or sell is selected
             {
                 cursorTexture = Ui.ButtonDrawOrder[Ui.SelectedOption.Value];
                 newMousePosition = Ui.CentrePosition(newMousePosition, cursorTexture, scale);

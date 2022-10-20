@@ -19,6 +19,8 @@ namespace ProceduralTD
             Content.RootDirectory = "Content";
             IsMouseVisible = false;
             IsFixedTimeStep = true;
+            TargetElapsedTime = System.TimeSpan.FromSeconds(1d / 165);
+
         }
 
         protected override void Initialize()

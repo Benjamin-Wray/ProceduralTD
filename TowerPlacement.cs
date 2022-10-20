@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -60,7 +61,7 @@ public static class TowerPlacement
         //get the position of the mouse on the map
         MouseState mouseState = Mouse.GetState();
         _mousePositionOnMap = WindowManager.GetMouseInRectangle(Ui.UiTarget.Bounds) - Camera.CameraPosition.ToPoint();
-        
+
         if (SelectedTower != null) SelectedTower.Position = _mousePositionOnMap; //if a tower is selected, set its position to under the mouse
         else if (Ui.SelectedOption is (int)MenuOptions.Sell or (int)MenuOptions.Upgrade) GetTowerUnderMouse(); //if sell or upgrade, find the index of tower underneath the mouse
 

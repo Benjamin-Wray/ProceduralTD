@@ -146,10 +146,10 @@ internal static class Ui
     {
         if (Camera.CameraTarget.Bounds.Contains(WindowManager.GetMouseInRectangle(WindowManager.Scene.Bounds)))
         {
-            if (SelectedOption < 4) CursorPrice = null;
+            if (SelectedOption < 4 || !_selectedOption.HasValue) CursorPrice = null;
             return;
         }
-        
+
         MouseState mouseState = Mouse.GetState();
         Point mousePosition = WindowManager.GetMouseInRectangle(HudTarget.Bounds); //gets the position of the mouse on the ui render target
         
@@ -160,7 +160,7 @@ internal static class Ui
         for (int i = 0; i < ButtonDrawOrder.Length; i++)
         {
             int x = i % 2;
-            int y = (int)Math.Floor(i / 2f);
+            int y = (int)(i / 2f);
             Vector2 position = new Vector2(x, y) * ButtonSize + ButtonPosition; //position of the button we are checking
             if (x >= 2) position.Y += 8; //the last row will be slightly lower to separate the tower buttons from the utility options
             
@@ -181,6 +181,20 @@ internal static class Ui
                 _hover = i; //sets the hover frame to be drawn over the button the mouse is currently over
                 CursorPrice = Prices[i]; //sets the price of the tower to be drawn by the cursor
             }
+        }
+    }
+    
+    internal static void PlayAnimation(GameTime gameTime, ref float timer, float nextFrameTime, ref int loadingIndex, int frameCount)
+    {
+        timer += (float)gameTime.ElapsedGameTime.TotalMilliseconds; //updates the timer since the last frame
+
+        if (timer >= nextFrameTime) //executes once a certain amount of time has passed
+        {
+            //switches to the next frame in the loading texture's animation
+            //MODed by number of frames so the animation loops back to the start once it reaches the end
+            loadingIndex = (loadingIndex + 1) % frameCount;
+            
+            timer %= nextFrameTime; //resets the timer so the loading animation isn't updated until the next time interval has passed
         }
     }
 
@@ -221,7 +235,7 @@ internal static class Ui
         //draw the numbers for health, money and current wave
         DrawNumber(Player.Health.ToString(), _healthPosition, TextColour);
         DrawNumber(Player.Money.ToString(), _moneyPosition, TextColour, true);
-        DrawNumber(Player.CurrentWave.ToString(), _waveCountPosition, TextColour);
+        DrawNumber(WaveManager.CurrentWave.ToString(), _waveCountPosition, TextColour);
         
         Main.SpriteBatch.End();
     }

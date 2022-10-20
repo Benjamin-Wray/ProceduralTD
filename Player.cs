@@ -19,8 +19,6 @@ internal static class Player
         get => _health;
         set => _health = Math.Clamp(value, 0, MaxHealth);
     }
-    
-    internal static int CurrentWave = 1;
 
     internal static Castle Castle;
 }

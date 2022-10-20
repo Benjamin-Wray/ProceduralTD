@@ -99,6 +99,7 @@ internal static class Camera
     
     internal static void DrawMap() //called every frame after update
     {
+        WaveManager.Draw();
         TowerPlacement.Draw();
 
         Main.Graphics.GraphicsDevice.SetRenderTarget(CameraTarget);
@@ -107,6 +108,7 @@ internal static class Camera
         Main.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
         Main.SpriteBatch.Draw(_mapTexture, CameraPosition * CameraScale, null, Color.White, 0, Vector2.Zero, CameraScale, SpriteEffects.None, 0f);
         Main.SpriteBatch.Draw(TowerPlacement.TowerTarget, CameraPosition * CameraScale, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0);
+        Main.SpriteBatch.Draw(WaveManager.AttackerTarget, CameraPosition * CameraScale, null, Color.White, 0, Vector2.Zero, CameraScale, SpriteEffects.None, 0f);
         Main.SpriteBatch.End();
     }
 }

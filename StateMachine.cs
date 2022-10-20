@@ -45,7 +45,7 @@ internal static class StateMachine
                 break;
             case (State.PlaceCastle, Action.PlaceCastle):
                 CurrentState = State.Wave;
-                
+                WaveManager.UpdateWave();
                 break;
         }
     }
@@ -62,6 +62,7 @@ internal static class StateMachine
         WindowManager.LoadContent();
         TitleScreen.LoadContent();
         TowerPlacement.LoadContent();
+        WaveManager.LoadContent();
         Ui.LoadContent();
     }
 
@@ -83,8 +84,9 @@ internal static class StateMachine
                 TowerPlacement.Update();
                 break;
             case State.Wave:
-                Camera.Update(gameTime);
+                WaveManager.Update(gameTime);
                 TowerPlacement.Update();
+                Camera.Update(gameTime);
                 Ui.Update();
                 break;
         }
