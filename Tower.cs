@@ -139,11 +139,12 @@ internal abstract class Tower
     internal void DrawToMap(Color drawColour = default)
     {
         if (drawColour == default) drawColour = Color.White;
+        Vector2 drawPosition = Position.ToVector2() * Camera.CameraScale;
         
         //draw textures to map, top textures should always be drawn above base textures
-        if (Ui.SelectedOption != null && _rangeIndicator != null) Main.SpriteBatch.Draw(_rangeIndicator, Position.ToVector2() * Camera.CameraScale, null, _rangeIndicatorColour, 0f, _rangeIndicator.Bounds.Center.ToVector2(), Camera.CameraScale, SpriteEffects.None, 1f);
-        Main.SpriteBatch.Draw(BaseTexture, Position.ToVector2() * Camera.CameraScale, null, drawColour, 0f, BaseTexture.Bounds.Center.ToVector2(), Camera.CameraScale, SpriteEffects.None, .5f); //draw base texture
-        if (TopTexture != null) Main.SpriteBatch.Draw(TopTexture, Position.ToVector2() * Camera.CameraScale, null, drawColour, _topAngle, TopTexture.Bounds.Center.ToVector2(), Camera.CameraScale, SpriteEffects.None, 0f); //draw top texture
+        if (Ui.SelectedOption != null && _rangeIndicator != null) Main.SpriteBatch.Draw(_rangeIndicator, drawPosition, null, _rangeIndicatorColour, 0f, _rangeIndicator.Bounds.Center.ToVector2(), Camera.CameraScale, SpriteEffects.None, 1f);
+        Main.SpriteBatch.Draw(BaseTexture, drawPosition, null, drawColour, 0f, BaseTexture.Bounds.Center.ToVector2(), Camera.CameraScale, SpriteEffects.None, .5f); //draw base texture
+        if (TopTexture != null) Main.SpriteBatch.Draw(TopTexture, drawPosition, null, drawColour, _topAngle, TopTexture.Bounds.Center.ToVector2(), Camera.CameraScale, SpriteEffects.None, 0f); //draw top texture
     }
 
     internal virtual void PlaceTower(ref List<Tower> towers)

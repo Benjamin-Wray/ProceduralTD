@@ -30,6 +30,7 @@ namespace ProceduralTD
         private const int Octaves = 4; //how many times noise will be generated and layered on top of each other
         private const float Lacunarity = 2; //this is multiplied by the frequency of the noise every octave
         private const float Persistence = .5f; //this is multiplied by the amplitude of the noise every octave
+        internal const float WaterLevel = .4f;
 
         internal static void GenerateNoiseMap(int seed)
         {

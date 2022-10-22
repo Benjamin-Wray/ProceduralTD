@@ -18,11 +18,10 @@ internal static class Camera
     
     private static readonly Vector2 CameraRange = new(MapGenerator.MapWidth - CameraWidth, MapGenerator.MapHeight - CameraHeight);
     internal static Vector2 CameraPosition = CameraRange / -2; //camera initially positioned in the middle of the map;
-
-    private const float WaterLevel = .4f;
+    
     private static readonly Dictionary<float, Color> MapColors = new()
     {
-        {WaterLevel, Color.Blue},
+        {MapGenerator.WaterLevel, Color.Blue},
         {.45f, Color.LightYellow},
         {.6f, Color.ForestGreen},
         {.75f, Color.Green},
@@ -65,7 +64,7 @@ internal static class Camera
                     }
                 }
 
-                if (MapGenerator.NoiseMap[x, y] <= WaterLevel) TowerPlacement.InvalidPositions[x, y] = true;
+                if (MapGenerator.NoiseMap[x, y] <= MapGenerator.WaterLevel) TowerPlacement.InvalidPositions[x, y] = true;
             });
         });
         
