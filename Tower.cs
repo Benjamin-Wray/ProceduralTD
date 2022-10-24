@@ -24,6 +24,7 @@ internal abstract class Tower
                 _position = value; //set the new position
                 _position = new Point(Math.Clamp(_position.X, 0, MapGenerator.MapWidth - 1), Math.Clamp(_position.Y, 0, MapGenerator.MapHeight - 1));
                 _topLeftPosition = Ui.CentrePosition(_position.ToVector2(), BaseTexture).ToPoint();
+                if (this is Castle) _topLeftPosition.Y -= BaseTexture.Height / 2;
                 CheckTowerCanBePlaced(); //check if the tower can be placed in the new position
                 UpdateRange(); //update the range of the tower
             }
@@ -136,7 +137,7 @@ internal abstract class Tower
         DrawToMap(tint);
     }
 
-    internal void DrawToMap(Color drawColour = default)
+    internal virtual void DrawToMap(Color drawColour = default)
     {
         if (drawColour == default) drawColour = Color.White;
         Vector2 drawPosition = Position.ToVector2() * Camera.CameraScale;
@@ -211,6 +212,15 @@ internal class Castle : Tower
     protected override void UpdateRange()
     {
         //ignore
+    }
+    
+    internal override void DrawToMap(Color drawColour = default)
+    {
+        if (drawColour == default) drawColour = Color.White;
+        Vector2 drawPosition = Position.ToVector2() * Camera.CameraScale;
+        
+        //draw textures to map, top textures should always be drawn above base textures
+        Main.SpriteBatch.Draw(BaseTexture, drawPosition, null, drawColour, 0f, new Vector2(BaseTexture.Bounds.Center.X, BaseTexture.Bounds.Bottom), Camera.CameraScale, SpriteEffects.None, .5f); //draw base texture
     }
 }
 

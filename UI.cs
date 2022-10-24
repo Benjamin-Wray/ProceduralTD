@@ -186,7 +186,7 @@ internal static class Ui
     
     internal static void PlayAnimation(GameTime gameTime, ref float timer, float nextFrameTime, ref int loadingIndex, int frameCount)
     {
-        timer += (float)gameTime.ElapsedGameTime.TotalMilliseconds; //updates the timer since the last frame
+        timer += (float)gameTime.ElapsedGameTime.TotalSeconds; //updates the timer since the last frame
 
         if (timer >= nextFrameTime) //executes once a certain amount of time has passed
         {

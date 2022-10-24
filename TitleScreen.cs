@@ -61,7 +61,7 @@ public static class TitleScreen
     private static bool _isBackspaceDown;
 
     private static float _timer; //keeps track of how much time has passed
-    private const int NextFrameTime = 500; //the number of milliseconds between frames in the loading animation
+    private const float NextFrameTime = .5f; //the number of seconds between frames in the loading animation
 
     internal static void LoadContent()
     {

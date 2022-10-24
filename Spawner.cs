@@ -10,21 +10,23 @@ namespace ProceduralTD;
 internal class Spawner
 {
     private Point _position = Point.Zero;
-    private const int MinSpawnRange = 300;
-    private const int MaxSpawnRange = 400;
+    private const int MinSpawnRange = 200;
+    private const int MaxSpawnRange = 300;
     
     private readonly Texture2D[] _frames = WaveManager.PortalFrames;
     private int _currentFrame;
-    private float _timer;
-    private const float NextFrameTime = 200;
+    private float _animationTimer;
+    private float _spawnTimer;
+    private const float NextFrameTime = .2f;
+    private const float NextSpawnTime = 2;
 
     private List<Point> _shortestPath = new();
-    private readonly Task _pathGenerated;
+    private readonly Task _generatePath;
 
     internal Spawner()
     {
         SetPosition();
-        _pathGenerated = Task.Run(FindShortestPath);
+        _generatePath = Task.Run(FindShortestPath);
     }
 
     private void SetPosition()
@@ -72,9 +74,10 @@ internal class Spawner
 
     private void FindShortestPath()
     {
-        _shortestPath = JumpPointSearch(_position, Player.Castle.Position);
+        List<Point> jumpPointPath = JumpPointSearch(_position, Player.Castle.Position);
+        _shortestPath = jumpPointPath;
     }
-
+    
     private List<Point> _visited;
     private List<Point> JumpPointSearch(Point startPoint, Point endPoint)
     {
@@ -85,7 +88,7 @@ internal class Spawner
         Dictionary<Point, float> gScore = new Dictionary<Point, float> {{startPoint, 0}};
         Dictionary<Point, float> fScore = new Dictionary<Point, float> {{startPoint, 0}};
         Dictionary<Point, Point> parentPoints = new Dictionary<Point, Point>();
-        
+
         while (unvisited.Count > 0)
         {
             unvisited = unvisited.OrderBy(x => fScore[x]).ThenBy(x => gScore[x]).ToList();
@@ -93,17 +96,22 @@ internal class Spawner
             Point currentPoint = unvisited[0];
             unvisited.RemoveAt(0);
 
-            CheckConnections(currentPoint, endPoint, ref unvisited, ref _visited, ref parentPoints, ref gScore, ref fScore);
+            CheckConnectionsJumpPoint(currentPoint, endPoint, ref unvisited, ref _visited, ref parentPoints, ref gScore, ref fScore);
 
             _visited.Add(currentPoint);
-            
-            if (currentPoint == endPoint) break;
+
+            if (currentPoint == endPoint)
+            {
+                BuildShortestPath(endPoint, parentPoints, ref shortestPath);
+                shortestPath.Reverse();
+
+                return shortestPath;
+            }
+
         }
 
-        BuildShortestPath(parentPoints, endPoint, ref shortestPath);
-        shortestPath.Reverse();
-
-        return shortestPath;
+        WaveManager.SpawnersToRemove.Add(this);  
+        return new List<Point>();
     }
 
     private static void CheckConnection(Point connection, Point parent, Point endPoint, ref List<Point> unvisited, ref List<Point> visited, ref Dictionary<Point, Point> parentPoints, ref Dictionary<Point, float> gScore, ref Dictionary<Point, float> fScore)
@@ -127,7 +135,7 @@ internal class Spawner
         if (!unvisited.Contains(connection)) unvisited.Add(connection);
     }
 
-    private void CheckConnections(Point currentPoint, Point endPoint, ref List<Point> unvisited, ref List<Point> visited, ref Dictionary<Point, Point> parentPoints, ref Dictionary<Point, float> gScore, ref Dictionary<Point, float> fScore)
+    private void CheckConnectionsJumpPoint(Point currentPoint, Point endPoint, ref List<Point> unvisited, ref List<Point> visited, ref Dictionary<Point, Point> parentPoints, ref Dictionary<Point, float> gScore, ref Dictionary<Point, float> fScore)
     {
         Point[] directions = {new(0, 1), new(1, 0), new(0, -1), new(-1, 0), new(1, 1), new(1, -1), new(-1, 1), new(-1, -1)};
         foreach (var direction in directions)
@@ -141,13 +149,19 @@ internal class Spawner
     {
         Point x = parent + new Point(direction.X * distance, direction.Y * distance);
 
-        if (!MapGenerator.MapBounds.Contains(x + direction) || IsPointWater(x + direction)) return false;
-        if (!MapGenerator.MapBounds.Contains(x + direction + direction) || IsPointWater(x + direction + direction)) return false;
+        if (!MapGenerator.MapBounds.Contains(x) || IsPointWater(x)) return false;
         
         Point a = x + new Point(direction.Y, direction.X);
         Point b = x + new Point(-direction.Y, -direction.X);
+
+        bool waterCheck = (IsPointWater(a) && IsPointWater(a + direction, true)) || (IsPointWater(b) && IsPointWater(b + direction, true));
+
+        float parentHeight = MapGenerator.NoiseMap[parent.X, parent.Y];
+        float xHeight = MapGenerator.NoiseMap[x.X, x.Y];
+
+        bool levelCheck = Math.Abs(parentHeight - xHeight) > .1f && !fromDiagonal;
         
-        if (x == endPoint || (IsPointWater(a) && IsPointNotWater(a + direction)) || (IsPointWater(b) && IsPointNotWater(b + direction)))
+        if (x == endPoint || waterCheck || levelCheck)
         {
             if (fromDiagonal) return true;
             
@@ -166,7 +180,7 @@ internal class Spawner
 
         bool a = Scan(x, new Point(0, direction.Y), 1, endPoint, ref unvisited, ref visited, ref parentPoints, ref gScore, ref fScore, true);
         bool b = Scan(x, new Point(direction.X, 0), 1, endPoint, ref unvisited, ref visited, ref parentPoints, ref gScore, ref fScore, true);
-
+        
         if (x == endPoint || a || b)
         {
             CheckConnection(x, parent, endPoint, ref unvisited, ref visited, ref parentPoints, ref gScore, ref fScore);
@@ -176,24 +190,25 @@ internal class Spawner
         DiagonalScan(parent, direction, ++distance, endPoint, ref unvisited, ref visited, ref parentPoints, ref gScore, ref fScore);
     }
 
-    private static bool IsPointWater(Point p) => MapGenerator.MapBounds.Contains(p) && MapGenerator.NoiseMap[p.X, p.Y] <= MapGenerator.WaterLevel;
-    private static bool IsPointNotWater(Point p) => MapGenerator.MapBounds.Contains(p) && MapGenerator.NoiseMap[p.X, p.Y] > MapGenerator.WaterLevel;
-    
-    private static float OctileDistance(Point currentPoint, Point endPoint)
+    private static bool IsPointWater(Point p, bool invert = false) => MapGenerator.MapBounds.Contains(p) && MapGenerator.NoiseMap[p.X, p.Y] <= MapGenerator.WaterLevel ^ invert;
+
+    internal static float OctileDistance(Point currentPoint, Point endPoint)
     {
         float dx = Math.Abs(currentPoint.X - endPoint.X);
         float dy = Math.Abs(currentPoint.Y - endPoint.Y);
         float distance = dx + dy + (float) (Math.Sqrt(2) - 2) * Math.Min(dx, dy);
+        float heightDifference = MapGenerator.NoiseMap[endPoint.X, endPoint.Y] - MapGenerator.NoiseMap[currentPoint.X, currentPoint.Y];
 
-        return distance;
+        return distance + heightDifference * 50;
     }
-
-    private static void BuildShortestPath(Dictionary<Point, Point> parentPoints, Point point, ref List<Point> shortestPath)
+    
+    private static void BuildShortestPath(Point point, Dictionary<Point, Point> parentPoints, ref List<Point> shortestPath)
     {
         shortestPath.Add(point);
         
         if (!parentPoints.ContainsKey(point)) return;
         Point parentPoint = parentPoints[point];
+        
         
         Point direction = parentPoint - point;
         if (direction.X != 0) direction.X /= Math.Abs(direction.X);
@@ -205,22 +220,36 @@ internal class Spawner
             shortestPath.Add(currentPoint);
             currentPoint += direction;
         }
+        
 
-        BuildShortestPath(parentPoints, parentPoint, ref shortestPath);
+        BuildShortestPath(parentPoint, parentPoints, ref shortestPath);
     }
     
     internal void Update(GameTime gameTime)
     {
-        Ui.PlayAnimation(gameTime, ref _timer, NextFrameTime, ref _currentFrame, _frames.Length);
+        if (_generatePath.IsCompleted) SpawnAttacker(gameTime);
+        
+        Ui.PlayAnimation(gameTime, ref _animationTimer, NextFrameTime, ref _currentFrame, _frames.Length);
+    }
+
+    private void SpawnAttacker(GameTime gameTime)
+    {
+        _spawnTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+        if (_spawnTimer >= NextSpawnTime)
+        {
+            WaveManager.Attackers.Add(new Attacker(new Random().Next(1, WaveManager.AttackerColours.Length+1), _position, _shortestPath));
+            _spawnTimer %= NextSpawnTime;
+        }
     }
     
     internal void Draw()
     {
-        Main.SpriteBatch.Draw(_frames[_currentFrame], _position.ToVector2(), null, Color.White, 0f, _frames[_currentFrame].Bounds.Center.ToVector2(), 1f, SpriteEffects.None, 0f);
-        if (_pathGenerated.IsCompleted)
+        if (_generatePath.IsCompleted)
         {
+            Main.SpriteBatch.Draw(_frames[_currentFrame], _position.ToVector2(), null, Color.White, 0f, _frames[_currentFrame].Bounds.Center.ToVector2(), 1f, SpriteEffects.None, 0f);
             foreach (Point point in _visited) Main.SpriteBatch.Draw(WaveManager.Pixel, point.ToVector2(), Color.DarkOrange);
-            foreach (Point point in _shortestPath) Main.SpriteBatch.Draw(WaveManager.Pixel, point.ToVector2(), Color.Fuchsia);
+            foreach (Point point in _shortestPath) Main.SpriteBatch.Draw(WaveManager.Pixel, point.ToVector2(), Color.SaddleBrown);
         }
     }
 }

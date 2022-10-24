@@ -1,29 +1,67 @@
-﻿using Microsoft.Xna.Framework;
-using Point = System.Drawing.Point;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace ProceduralTD;
 
 internal class Attacker
 {
     private Point _position;
-    private Point Position
+    private readonly Queue<Point> _path;
+    private Point _nextPoint;
+    private float _nextPointTime;
+    
+    private float _timer;
+    private const float Speed = 10;
+
+    private int _hp;
+    internal int Hp
     {
-        get => _position;
-        set => _position = value;
+        get => _hp;
+        set
+        {
+            _hp = Math.Clamp(value, 0, WaveManager.AttackerColours.Length);
+            if (_hp == 0)
+            {
+                WaveManager.AttackersToRemove.Add(this);
+                return;
+            }
+            _currentTexture = WaveManager.AttackerColours[_hp - 1];
+        }
     }
 
-    internal Attacker(Point position)
+    private Texture2D _currentTexture;
+
+    internal Attacker(int hp, Point position, IEnumerable<Point> shortestPath)
     {
-        Position = position;
+        Hp = hp;
+        _position = position;
+        _path = new Queue<Point>(shortestPath);
+        GetNextPoint();
     }
     
     internal void Update(GameTime gameTime)
     {
+        if (_nextPoint == _position) GetNextPoint();
         
+        _timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+        if (_timer >= _nextPointTime)
+        {
+            _position = _nextPoint;
+            _timer %= _nextPointTime;
+        }
+    }
+
+    private void GetNextPoint()
+    {
+        if (!_path.TryDequeue(out _nextPoint)) WaveManager.AttackersToRemove.Add(this);
+        _nextPointTime = Spawner.OctileDistance(_position, _nextPoint) / Speed;
     }
 
     internal void Draw()
     {
-        
+        Main.SpriteBatch.Draw(_currentTexture, _position.ToVector2(), null, Color.White, 0, _currentTexture.Bounds.Center.ToVector2(), 1, SpriteEffects.None, 0);
     }
 }

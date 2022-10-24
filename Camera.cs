@@ -19,7 +19,7 @@ internal static class Camera
     private static readonly Vector2 CameraRange = new(MapGenerator.MapWidth - CameraWidth, MapGenerator.MapHeight - CameraHeight);
     internal static Vector2 CameraPosition = CameraRange / -2; //camera initially positioned in the middle of the map;
     
-    private static readonly Dictionary<float, Color> MapColors = new()
+    internal static readonly Dictionary<float, Color> MapColors = new()
     {
         {MapGenerator.WaterLevel, Color.Blue},
         {.45f, Color.LightYellow},
@@ -27,7 +27,7 @@ internal static class Camera
         {.75f, Color.Green},
         {.85f, Color.Gray},
         {.95f, Color.DarkGray},
-        {1f, Color.Snow},
+        {1f, Color.Snow}
     };
 
     private static readonly Dictionary<Keys, Vector2> MovementKeys = new()
@@ -106,8 +106,8 @@ internal static class Camera
 
         Main.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
         Main.SpriteBatch.Draw(_mapTexture, CameraPosition * CameraScale, null, Color.White, 0, Vector2.Zero, CameraScale, SpriteEffects.None, 0f);
-        Main.SpriteBatch.Draw(TowerPlacement.TowerTarget, CameraPosition * CameraScale, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0);
         Main.SpriteBatch.Draw(WaveManager.AttackerTarget, CameraPosition * CameraScale, null, Color.White, 0, Vector2.Zero, CameraScale, SpriteEffects.None, 0f);
+        Main.SpriteBatch.Draw(TowerPlacement.TowerTarget, CameraPosition * CameraScale, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0);
         Main.SpriteBatch.End();
     }
 }
