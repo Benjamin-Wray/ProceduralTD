@@ -26,7 +26,7 @@ namespace ProceduralTD
         internal const int MapWidth = Camera.CameraWidth * MapScale;
         internal const int MapHeight = Camera.CameraHeight * MapScale;
         internal static readonly Rectangle MapBounds = new(0, 0, MapWidth, MapHeight);
-        private const float NoiseScale = .008f; //how "zoomed in" the noise is
+        private const float NoiseScale = .0075f; //how "zoomed in" the noise is
         private const int Octaves = 4; //how many times noise will be generated and layered on top of each other
         private const float Lacunarity = 2; //this is multiplied by the frequency of the noise every octave
         private const float Persistence = .5f; //this is multiplied by the amplitude of the noise every octave
@@ -48,7 +48,7 @@ namespace ProceduralTD
                     NoiseMap[x, y] = OctaveNoise(x * NoiseScale, y * NoiseScale, pt);
                 });
             });
-
+            
             NoiseMap = NormalizeMap(NoiseMap);
 
             StateMachine.ChangeState(StateMachine.Action.BeginGame);
@@ -121,7 +121,7 @@ namespace ProceduralTD
             float x1 = Lerp(dot01, dot11, smoothedX);
             float noiseValue = Lerp(x0, x1, smoothedY);
             
-            return noiseValue;
+            return Normalize(noiseValue, -1, 1);
         }
         
         //applies value to the function 6t^5 - 15t^4 + 10t^3
@@ -137,11 +137,7 @@ namespace ProceduralTD
             return dot1 + smoothed * (dot2 - dot1);
         }
         
-        //normalises value in the range 0.0 - 1.0
-        internal static float Normalize(float value, float min, float max)
-        {
-            return (value - min) / (max - min);
-        }
+        internal static float Normalize(float value, float min, float max) => (value - min) / (max - min); //normalises value in the range 0.0 - 1.0
 
         private static float[,] NormalizeMap(float[,] noiseMap)
         {

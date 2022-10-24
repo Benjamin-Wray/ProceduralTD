@@ -15,16 +15,19 @@ internal class Attacker
     private float _timer;
     private const float Speed = 10;
 
+    internal const int MaxHp = 6;
     private int _hp;
-    internal int Hp
+
+    private int Hp
     {
         get => _hp;
         set
         {
-            _hp = Math.Clamp(value, 0, WaveManager.AttackerColours.Length);
+            _hp = Math.Clamp(value, 0, MaxHp);
             if (_hp == 0)
             {
-                WaveManager.AttackersToRemove.Add(this);
+                Player.Health -= Hp;
+                WaveManager.Attackers.Remove(this);
                 return;
             }
             _currentTexture = WaveManager.AttackerColours[_hp - 1];
@@ -56,7 +59,11 @@ internal class Attacker
 
     private void GetNextPoint()
     {
-        if (!_path.TryDequeue(out _nextPoint)) WaveManager.AttackersToRemove.Add(this);
+        if (!_path.TryDequeue(out _nextPoint))
+        {
+            Player.Health -= Hp;
+            WaveManager.Attackers.Remove(this);
+        }
         _nextPointTime = Spawner.OctileDistance(_position, _nextPoint) / Speed;
     }
 

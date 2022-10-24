@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 namespace ProceduralTD;
 
@@ -10,13 +9,12 @@ public static class WaveManager
 {
     internal static int CurrentWave;
     private const int AddSpawnerInterval = 5;
-    
+
+    internal static readonly RenderTarget2D SpawnerTarget = new(Main.Graphics.GraphicsDevice, MapGenerator.MapWidth, MapGenerator.MapHeight);
     internal static readonly RenderTarget2D AttackerTarget = new(Main.Graphics.GraphicsDevice, MapGenerator.MapWidth, MapGenerator.MapHeight);
 
     internal static readonly List<Spawner> Spawners = new();
-    internal static readonly List<Spawner> SpawnersToRemove = new();
     internal static readonly List<Attacker> Attackers = new();
-    internal static readonly List<Attacker> AttackersToRemove = new();
 
     internal static Texture2D Pixel;
     internal static Texture2D[] AttackerColours;
@@ -51,44 +49,36 @@ public static class WaveManager
         if (Attackers.Count == 0) CurrentWave++;
         else return;
 
-        if (Spawners.Count == 0 || CurrentWave % AddSpawnerInterval == 0)
-        {
-            Spawners.Add(new Spawner());
-        }
+        if (Spawners.Count == 0 || CurrentWave % AddSpawnerInterval == 0) Spawners.Add(new Spawner());
     }
 
     public static void Update(GameTime gameTime)
     {
-        if (Keyboard.GetState().IsKeyDown(Keys.Enter)) Spawners.Add(new Spawner());
-        
-        AttackersToRemove.Clear();
-        SpawnersToRemove.Clear();
-        
-        foreach (Spawner spawner in Spawners) spawner.Update(gameTime);
-        foreach (Spawner spawner in SpawnersToRemove)
-        {
-            Spawners.Remove(spawner);
-            Spawners.Add(new Spawner());
-        }
-        foreach (Attacker attacker in Attackers) attacker.Update(gameTime);
-        foreach (Attacker attacker in AttackersToRemove)
-        {
-            Player.Health -= attacker.Hp;
-            Attackers.Remove(attacker);
-        }
+        Spawner[] tempSpawners = Spawners.ToArray();
+        Attacker[] tempAttackers = Attackers.ToArray();
+        foreach (Spawner spawner in tempSpawners) spawner.Update(gameTime);
+        foreach (Attacker attacker in tempAttackers) attacker.Update(gameTime);
 
+        if (tempSpawners.All(x => !x.CanSpawn) && tempAttackers.Length == 0)
+        {
+            if (CurrentWave % Attacker.MaxHp == 0) Spawners.Add(new Spawner());
+            CurrentWave++;
+            foreach (Spawner spawner in tempSpawners) spawner.UpdateAttackersToSpawn();
+        }
     }
 
     public static void Draw()
     {
+        Main.Graphics.GraphicsDevice.SetRenderTarget(SpawnerTarget);
+        Main.Graphics.GraphicsDevice.Clear(Color.Transparent);
+        Main.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
+        foreach (Spawner spawner in Spawners) spawner.Draw();
+        Main.SpriteBatch.End();
+        
         Main.Graphics.GraphicsDevice.SetRenderTarget(AttackerTarget);
         Main.Graphics.GraphicsDevice.Clear(Color.Transparent);
-        
         Main.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
-        
-        foreach (Spawner spawner in Spawners) spawner.Draw();
         foreach (Attacker attacker in Attackers) attacker.Draw();
-        
         Main.SpriteBatch.End();
     }
 }
