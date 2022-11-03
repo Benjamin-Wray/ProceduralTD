@@ -4,12 +4,16 @@ namespace ProceduralTD;
 
 internal static class Player
 {
-    private const int MaxMoney = 99999;
-    private static int _money = MaxMoney;
+    private const int MaxMoney = 999999;
+    private static int _money = 100;
     internal static int Money
     {
         get => _money;
-        set => _money = Math.Clamp(value, 0, MaxMoney);
+        set
+        {
+            _money = Math.Clamp(value, 0, MaxMoney);
+            TowerPlacement.SelectedTower?.CheckTowerCanBePlaced();
+        }
     }
 
     private const int MaxHealth = 100;

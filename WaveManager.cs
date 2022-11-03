@@ -62,6 +62,7 @@ public static class WaveManager
         if (tempSpawners.All(x => !x.CanSpawn) && tempAttackers.Length == 0)
         {
             if (CurrentWave % Attacker.MaxHp == 0) Spawners.Add(new Spawner());
+            //Player.Money += CurrentWave * 5;
             CurrentWave++;
             foreach (Spawner spawner in tempSpawners) spawner.UpdateAttackersToSpawn();
         }

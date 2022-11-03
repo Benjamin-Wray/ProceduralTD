@@ -124,7 +124,7 @@ public static class TitleScreen
         switch (_startRectangle.Contains(mousePosition), mouseState.LeftButton)
         {
             case (true, ButtonState.Released) when _isStartButtonDown: //if the left mouse button has been released from being pressed while the cursor is hovering over the button
-                StateMachine.ChangeState(StateMachine.Action.LoadMap); //Change the state machine's current state to start loading the map
+                LoadMap(); //Change the state machine's current state to start loading the map
                 break;
             case (true, ButtonState.Released): //if the mouse is hovering over the start button but the left mouse button has not been pressed yet
                 _startButtonIndex = 1; //start button changes colour to indicate it can be pressed by the player
@@ -142,14 +142,14 @@ public static class TitleScreen
         if (keyboardState.IsKeyDown(Keys.Enter)) //if the enter key was pressed
         {
             _startButtonIndex = 2; //indicate to the player that the start button has been pressed
-            StateMachine.ChangeState(StateMachine.Action.LoadMap); //Change the state machine's current state to start loading the map
+            LoadMap(); //Change the state machine's current state to start loading the map
         }
     }
 
     internal static void LoadMap()
     {
-        int seed = _seed == "" ? new Random().Next(0, (int)Math.Pow(10, MaxSeedLength)) : Convert.ToInt32(_seed); //generates a random seed if the user left the input box blank
-        Task.Run(() => MapGenerator.GenerateNoiseMap(seed)); //generates the map asynchronously so the user can still move their mouse, resize the window, etc while the map loads
+        MapGenerator.Seed = _seed == "" ? new Random().Next(0, (int)Math.Pow(10, MaxSeedLength)) : Convert.ToInt32(_seed); //generates a random seed if the user left the input box blank
+        StateMachine.ChangeState(StateMachine.Action.LoadMap);
     }
     
     internal static void PlayLoadingAnimation(GameTime gameTime)

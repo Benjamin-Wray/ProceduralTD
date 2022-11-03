@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -25,9 +23,9 @@ public static class TowerPlacement
     //this array is used by the program when placing towers to prevent towers from being placed on water or other towers
     internal static readonly bool[,] InvalidPositions = new bool[MapGenerator.MapWidth, MapGenerator.MapHeight];
     
-    private static List<Tower> _placedTowers = new(); //stores all of the placed towers
+    internal static List<Tower> PlacedTowers = new(); //stores all of the placed towers
     internal static Tower? SelectedTower; //stored the tower the player will place
-    private static int? _hoveredTowerIndex; //index of the tower in the tower list that the mouse is currently hovering over
+    private static int _hoveredTowerIndex; //index of the tower in the tower list that the mouse is currently hovering over
 
     private static Point _mousePositionOnMap; //position of the mouse on the map
     private static bool _isLeftMouseDown; //tells the program if the mouse is currently down
@@ -56,7 +54,7 @@ public static class TowerPlacement
         SniperTop = Main.ContentManager.Load<Texture2D>("images/ui/towers/sniper_top");
     }
     
-    internal static void Update()
+    internal static void Update(GameTime gameTime)
     {
         //get the position of the mouse on the map
         MouseState mouseState = Mouse.GetState();
@@ -76,27 +74,28 @@ public static class TowerPlacement
                 _isLeftMouseDown = false;
                 break;
         }
-        
-        Parallel.ForEach(_placedTowers, tower =>
+
+        Tower[] tempPlacedTowers = PlacedTowers.ToArray();
+        foreach (Tower tower in tempPlacedTowers)
         {
-            tower.Update();
-        });
+            tower.Update(gameTime);
+        }
     }
     
     private static void OnClick()
     {
         if (!Camera.CameraTarget.Bounds.Contains(WindowManager.GetMouseInRectangle(WindowManager.Scene.Bounds))) return; //if the mouse is not on the map when clicked, do nothing
 
-        if (SelectedTower != null) SelectedTower.PlaceTower(ref _placedTowers); //if a tower is selected, place the tower
-        else if (_hoveredTowerIndex != null) //if the mouse is over a tower
+        if (SelectedTower != null) SelectedTower.PlaceTower(ref PlacedTowers); //if a tower is selected, place the tower
+        else if (_hoveredTowerIndex >= 0) //if the mouse is over a tower
         {
             switch (Ui.SelectedOption)
             {
                 case (int)MenuOptions.Upgrade: //if upgrade is selected
-                    _placedTowers[_hoveredTowerIndex.Value].Upgrade(); //upgrade the tower
+                    PlacedTowers[_hoveredTowerIndex].Upgrade(); //upgrade the tower
                     break;
                 case (int)MenuOptions.Sell: //if sell is selected
-                    _placedTowers[_hoveredTowerIndex.Value].Sell(ref _placedTowers); //sell the tower
+                    PlacedTowers[_hoveredTowerIndex].Sell(ref PlacedTowers); //sell the tower
                     break;
             }
         }
@@ -121,23 +120,12 @@ public static class TowerPlacement
     {
         _hoveredTowerIndex = FindTowerIndex(); //finds the index of the tower under the mouse
         
-        if (_hoveredTowerIndex.HasValue) _placedTowers[_hoveredTowerIndex.Value].DisplayCursorPrice(); //if the mouse is over a tower, display its sell/upgrade price
+        if (_hoveredTowerIndex >= 0) PlacedTowers[_hoveredTowerIndex].SetCursorPrice(); //if the mouse is over a tower, display its sell/upgrade price
         else Ui.CursorPrice = null; //if the mouse is not over a tower no price will be displayed
     }
 
-    private static int? FindTowerIndex()
-    {
-        int? index = null; //stores the index of the tower the mouse is hovering over
-        Parallel.For(0, _placedTowers.Count, i =>
-        {
-            Tower tower = _placedTowers[i]; //checks each tower on the map
-            float distance = Vector2.Distance(_mousePositionOnMap.ToVector2(), tower.Position.ToVector2()); //gets the distance between the mouse and the tower
-            if (distance <= tower.BaseTexture.Width / 2f) index = i; //checks if mouse position is within the radius of the tower
-        });
-        
-        return index;
-    }
-    
+    private static int FindTowerIndex() => PlacedTowers.FindIndex(x => Vector2.Distance(_mousePositionOnMap.ToVector2(), x.Position.ToVector2()) <= x.BaseTexture.Width / 2f);
+
     internal static void Draw()
     {
         //start drawing to the tower target
@@ -148,7 +136,7 @@ public static class TowerPlacement
         Main.SpriteBatch.Begin(samplerState: SamplerState.PointClamp, sortMode: SpriteSortMode.BackToFront);
 
         Player.Castle?.DrawToMap();
-        foreach (Tower tower in _placedTowers) tower.DrawToMap(); //draw the towers to the map
+        foreach (Tower tower in PlacedTowers) tower.DrawToMap(); //draw the towers to the map
         SelectedTower?.DrawUnderMouse(); //draw the selected tower
 
         Main.SpriteBatch.End();

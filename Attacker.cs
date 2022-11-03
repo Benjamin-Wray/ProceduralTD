@@ -7,29 +7,28 @@ namespace ProceduralTD;
 
 internal class Attacker
 {
-    private Point _position;
+    internal Point Position;
     private readonly Queue<Point> _path;
     private Point _nextPoint;
     private float _nextPointTime;
     
     private float _timer;
-    private const float Speed = 10;
+    private const float Speed = 15;
 
     internal const int MaxHp = 6;
     private int _hp;
-
-    private int Hp
+    internal int Hp
     {
         get => _hp;
         set
         {
-            _hp = Math.Clamp(value, 0, MaxHp);
-            if (_hp == 0)
+            if (value <= 0)
             {
-                Player.Health -= Hp;
-                WaveManager.Attackers.Remove(this);
+                Player.Money += _hp - Math.Clamp(value, 0, MaxHp);
+                if (WaveManager.Attackers.Contains(this)) WaveManager.Attackers.Remove(this);
                 return;
             }
+            _hp = Math.Clamp(value, 0, MaxHp);
             _currentTexture = WaveManager.AttackerColours[_hp - 1];
         }
     }
@@ -39,20 +38,20 @@ internal class Attacker
     internal Attacker(int hp, Point position, IEnumerable<Point> shortestPath)
     {
         Hp = hp;
-        _position = position;
+        Position = position;
         _path = new Queue<Point>(shortestPath);
         GetNextPoint();
     }
     
     internal void Update(GameTime gameTime)
     {
-        if (_nextPoint == _position) GetNextPoint();
+        if (_nextPoint == Position) GetNextPoint();
         
         _timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
         if (_timer >= _nextPointTime)
         {
-            _position = _nextPoint;
+            Position = _nextPoint;
             _timer %= _nextPointTime;
         }
     }
@@ -64,11 +63,11 @@ internal class Attacker
             Player.Health -= Hp;
             WaveManager.Attackers.Remove(this);
         }
-        _nextPointTime = Spawner.OctileDistance(_position, _nextPoint) / Speed;
+        _nextPointTime = Spawner.OctileDistance(Position, _nextPoint, false) / Speed;
     }
 
     internal void Draw()
     {
-        Main.SpriteBatch.Draw(_currentTexture, _position.ToVector2(), null, Color.White, 0, _currentTexture.Bounds.Center.ToVector2(), 1, SpriteEffects.None, 0);
+        Main.SpriteBatch.Draw(_currentTexture, Position.ToVector2(), null, Color.White, 0, _currentTexture.Bounds.Center.ToVector2(), 1, SpriteEffects.None, 0);
     }
 }

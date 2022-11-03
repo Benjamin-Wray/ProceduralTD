@@ -52,7 +52,7 @@ public static class WindowManager
     {
         KeyboardState keyboardState = Keyboard.GetState();
         
-        if (keyboardState.IsKeyDown(Keys.Escape)) Main.ExitGame(); //exits the game if the escape key is pressed
+        if (keyboardState.IsKeyDown(Keys.Escape)) Program.Game.Exit(); //exits the game if the escape key is pressed
         
         //toggles fullscreen when F11 is pressed
         if (keyboardState.IsKeyDown(Keys.F11) && !_f11Down)

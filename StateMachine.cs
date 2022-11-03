@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 
 namespace ProceduralTD;
 
@@ -37,7 +38,7 @@ internal static class StateMachine
                 break;
             case (State.Title, Action.LoadMap): //runs when the start button is pressed on the title screen
                 CurrentState = State.LoadingMap; //tells the program to start loading the map
-                TitleScreen.LoadMap();
+                Task.Run(MapGenerator.GenerateNoiseMap); //generates the map asynchronously so the user can still move their mouse, resize the window, etc while the map loads
                 break;
             case (State.LoadingMap, Action.BeginGame): //runs when the map has finished being generated
                 CurrentState = State.PlaceCastle;
@@ -81,11 +82,11 @@ internal static class StateMachine
                 break;
             case State.PlaceCastle:
                 Camera.Update(gameTime);
-                TowerPlacement.Update();
+                TowerPlacement.Update(gameTime);
                 break;
             case State.Wave:
                 WaveManager.Update(gameTime);
-                TowerPlacement.Update();
+                TowerPlacement.Update(gameTime);
                 Camera.Update(gameTime);
                 Ui.Update();
                 break;

@@ -11,8 +11,6 @@ namespace ProceduralTD
         internal static ContentManager ContentManager;
         internal static GameWindow GameWindow;
 
-        private static bool _exit;
-
         public Main()
         {
             Graphics = new GraphicsDeviceManager(this);
@@ -40,18 +38,11 @@ namespace ProceduralTD
 
         protected override void Update(GameTime gameTime)
         {
-            if (_exit) Exit();
-
             StateMachine.Update(gameTime);
 
             base.Update(gameTime);
         }
-        
-        public static void ExitGame()
-        {
-            _exit = true;
-        }
-        
+
         protected override void Draw(GameTime gameTime)
         {
             StateMachine.Draw();

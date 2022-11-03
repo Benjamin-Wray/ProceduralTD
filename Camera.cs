@@ -44,7 +44,7 @@ internal static class Camera
 
     private const float MoveSpeed = 200; //how fast the camera moves
 
-    private static void GenerateMapTexture() //generate 2D array of colours to be drawn to the screen to represent height
+    internal static Task GenerateMapTexture() //generate 2D array of colours to be drawn to the screen to represent height
     {
         _mapTexture = new Texture2D(Main.Graphics.GraphicsDevice, MapGenerator.MapWidth, MapGenerator.MapHeight);
 
@@ -69,13 +69,12 @@ internal static class Camera
         });
         
         _mapTexture.SetData(colourMap);
+        return Task.CompletedTask;
     }
     
     //called every frame
     internal static void Update(GameTime gameTime)
     {
-        if (_mapTexture == null) GenerateMapTexture(); //generate a map texture if it has not been generated yet
-        
         KeyboardState keyboardState = Keyboard.GetState();
         Vector2 direction = Vector2.Zero; //vector that represents the direction the camera will move this frame
         

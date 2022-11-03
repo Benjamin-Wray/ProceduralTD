@@ -22,6 +22,7 @@ namespace ProceduralTD
         };
         
         //values for map generation
+        internal static int Seed;
         private const int MapScale = 4; //how many times bigger the map is than the camera
         internal const int MapWidth = Camera.CameraWidth * MapScale;
         internal const int MapHeight = Camera.CameraHeight * MapScale;
@@ -32,10 +33,10 @@ namespace ProceduralTD
         private const float Persistence = .5f; //this is multiplied by the amplitude of the noise every octave
         internal const float WaterLevel = .4f;
 
-        internal static void GenerateNoiseMap(int seed)
+        internal static void GenerateNoiseMap()
         {
             //creates a permutation table from seed
-            int[] pt = GeneratePermutationTable(seed);
+            int[] pt = GeneratePermutationTable(Seed);
 
             //creates an empty noise map
             NoiseMap = new float[MapWidth, MapHeight];
@@ -50,6 +51,7 @@ namespace ProceduralTD
             });
             
             NoiseMap = NormalizeMap(NoiseMap);
+            Camera.GenerateMapTexture();
 
             StateMachine.ChangeState(StateMachine.Action.BeginGame);
         }

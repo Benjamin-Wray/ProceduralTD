@@ -4,11 +4,13 @@ namespace ProceduralTD
 {
     public static class Program
     {
+        internal static Main Game;
+        
         [STAThread]
         static void Main()
         {
-            using var game = new Main();
-            game.Run();
+            Game = new Main();
+            Game.Run();
         }
     }
 }

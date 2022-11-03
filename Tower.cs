@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -37,7 +38,6 @@ internal abstract class Tower
     private Point _topLeftPosition;
     private float _topAngle;
 
-    private bool _isActive; //makes sure the tower only attacks once it has been placed
     internal static bool CanBePlaced;
 
     private const float UpgradePriceMultiplier = 3/5f; //used to calculate the upgrade price
@@ -45,9 +45,10 @@ internal abstract class Tower
     private int _upgradePrice; //Price to upgrade the tower
     internal int SellPrice; //Price to sell the tower
 
-    protected float FireRate;
+    private float _fireTimer;
+    protected float TimeToFire;
     protected float MinRange;
-    private float _range;
+    protected float Range;
     protected int Damage;
     
     protected Tower() => Constructor(); //The base constructor must be executed after the constructor in the subclass so it calls another function which can be overriden
@@ -63,9 +64,9 @@ internal abstract class Tower
     internal static void UpdateSpaceValidity(bool newValue, Texture2D texture, Point position, Point topLeftPosition, bool isCastle = false)
     {
         //iterates through the square of the grid the tower is in
-        Parallel.For(0, texture.Height, y =>
+        for (int y = 0; y < texture.Height; y++)
         {
-            Parallel.For(0, texture.Width, x =>
+            for (int x = 0; x < texture.Width; x++)
             {
                 Point setPosition = topLeftPosition + new Point(x, y);
                 //ignores anything outside of the radius of the base unless it is the castle
@@ -74,11 +75,11 @@ internal abstract class Tower
                     //sets the position in the invalid positions list to true if the tower is being placed or false if it is being sold
                     TowerPlacement.InvalidPositions[setPosition.X, setPosition.Y] = newValue;
                 }
-            });
-        });
+            }
+        }
     }
 
-    private void CheckTowerCanBePlaced()
+    internal void CheckTowerCanBePlaced()
     {
         CanBePlaced = true; //initially, the tower can be placed
         if (Player.Money < BuyPrice || !MapGenerator.MapBounds.Contains(new Rectangle(_topLeftPosition, BaseTexture.Bounds.Size)))
@@ -88,9 +89,9 @@ internal abstract class Tower
         }
         
         //iterates through the square of the grid the tower is in
-        Parallel.For(0, BaseTexture.Height, y =>
+        for (int y = 0; y < BaseTexture.Height; y++)
         {
-            Parallel.For(0, BaseTexture.Width, x =>
+            for (int x = 0; x < BaseTexture.Width; x++)
             {
                 Point checkPosition = _topLeftPosition + new Point(x, y);
                 //ignores anything outside of the radius of the base unless it is the castle
@@ -101,27 +102,25 @@ internal abstract class Tower
                         CanBePlaced = false; //if tower is on water or another tower, it cannot be placed
                     }
                 }
-            });
-        });
+            }
+        }
     }
 
     protected virtual void UpdateRange()
     {
+        Range = MinRange + MinRange * MapGenerator.NoiseMap[Position.X, Position.Y] * 2; //towers that are higher up will have a better range
         
-        _range = MinRange + MinRange * MapGenerator.NoiseMap[Position.X, Position.Y] * 2; //towers that are higher up will have a better range
-        
-        _rangeIndicator = new Texture2D(Main.Graphics.GraphicsDevice, (int)_range * 2 + 2, (int)_range * 2 + 2); //texture to show the range of the tower
+        _rangeIndicator = new Texture2D(Main.Graphics.GraphicsDevice, (int)Range * 2 + 2, (int)Range * 2 + 2); //texture to show the range of the tower
         Color[] colours = new Color[_rangeIndicator.Width * _rangeIndicator.Height]; //create colour map for the range indicator
         
         //checks each pixel of the texture
-        Parallel.For(0, _rangeIndicator.Height, y =>
+        for (int y = 0; y < _rangeIndicator.Height; y++)
         {
-            Parallel.For(0, _rangeIndicator.Width, x =>
+            for (int x = 0; x < _rangeIndicator.Width; x++)
             {
-                //if the pixel is in the range of the texture, it will be visible 
-                if (Vector2.Distance(new Vector2(x, y), _rangeIndicator.Bounds.Center.ToVector2()) <= _range) colours[x % _rangeIndicator.Width + y * _rangeIndicator.Width] = Color.White;
-            });
-        });
+                if (Vector2.Distance(new Vector2(x, y), _rangeIndicator.Bounds.Center.ToVector2()) <= Range) colours[x % _rangeIndicator.Width + y * _rangeIndicator.Width] = Color.White;
+            }
+        }
         
         _rangeIndicator.SetData(colours); //set the colours to the texture
         
@@ -153,12 +152,11 @@ internal abstract class Tower
         if (!CanBePlaced) return; //only place the tower if it can be placed
         towers.Add(this); //add this tower to the list of placed towers
         UpdateTowerSpaceValidity(true); //update the invalid positions array so other towers cannot be placed on top of this one
-        _isActive = true; //set the tower to active
         Player.Money -= BuyPrice; //subtract the buy price from the player's money
         TowerPlacement.SelectTower(); //sets a new tower instance to be placed
     }
 
-    internal virtual void DisplayCursorPrice()
+    internal virtual void SetCursorPrice()
     {
         //display the corresponding price
         Ui.CursorPrice = Ui.SelectedOption switch
@@ -172,7 +170,7 @@ internal abstract class Tower
     internal virtual void Upgrade()
     {
         if (Player.Money < _upgradePrice) return; //only upgrades if the player has enough money
-        FireRate *= 2;
+        TimeToFire /= 2;
         SellPrice += _upgradePrice / 2;
         Player.Money -= _upgradePrice;
         _upgradePrice *= 2;
@@ -185,10 +183,35 @@ internal abstract class Tower
         towers.Remove(this); //remove tower from map
     }
     
-    internal void Update()
+    internal void Update(GameTime gameTime)
     {
-        _topAngle += .1f;
-        _topAngle %= 360;
+        Attacker[] attackersInRange = WaveManager.Attackers.Where(attacker => DistanceFromTower(attacker) <= Range).ToArray();
+        if (attackersInRange.Length == 0)
+        {
+            _fireTimer = 0;
+            return;
+        }
+
+        attackersInRange = OrderAttackers(attackersInRange);
+        _topAngle = MathF.Atan2(attackersInRange.First().Position.Y - _position.Y, attackersInRange.First().Position.X - _position.X);
+
+        _fireTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+        if (_fireTimer >= TimeToFire)
+        {
+            _fireTimer %= TimeToFire;
+            Fire(attackersInRange);
+        }
+    }
+
+    private float DistanceFromTower(Attacker attacker) => Vector2.Distance(attacker.Position.ToVector2(), Position.ToVector2());
+    protected float DistanceFromCastle(Attacker attacker) => Vector2.Distance(attacker.Position.ToVector2(), Player.Castle.Position.ToVector2());
+    
+    protected virtual Attacker[] OrderAttackers(Attacker[] attackers) => attackers;
+
+    protected virtual void Fire(Attacker[] attackers)
+    {
+        Attacker attackerToShoot = attackers.First();
+        attackerToShoot.Hp -= Damage;
     }
 }
 
@@ -231,14 +254,14 @@ internal class LandMine : Tower
         //set values
         BaseTexture = TowerPlacement.LandMineBase;
         BuyPrice = 10;
-        FireRate = 1;
-        MinRange = 10;
+        TimeToFire = 2;
+        MinRange = 15;
         Damage = 5;
         
         base.Constructor();
     }
 
-    internal override void DisplayCursorPrice()
+    internal override void SetCursorPrice()
     {
         //only display sell price
         if (Ui.SelectedOption == (int)TowerPlacement.MenuOptions.Sell) Ui.CursorPrice = SellPrice;
@@ -248,6 +271,16 @@ internal class LandMine : Tower
     internal override void Upgrade()
     {
         //Landmines cannot be upgraded
+    }
+
+    protected override void Fire(Attacker[] attackers)
+    {
+        foreach (Attacker attacker in attackers)
+        {
+            attacker.Hp -= Damage;
+        }
+        UpdateTowerSpaceValidity(false);
+        TowerPlacement.PlacedTowers.Remove(this);
     }
 }
 
@@ -259,12 +292,14 @@ internal class Cannon : Tower
         BaseTexture = TowerPlacement.CannonBase;
         TopTexture = TowerPlacement.CannonTop;
         BuyPrice = 30;
-        FireRate = .5f;
+        TimeToFire = 3;
         MinRange = 30;
         Damage = 3;
         
         base.Constructor();
     }
+
+    protected override Attacker[] OrderAttackers(Attacker[] attackers) => attackers.OrderBy(DistanceFromCastle).ToArray();
 }
 
 internal class NailGun : Tower
@@ -273,12 +308,17 @@ internal class NailGun : Tower
     {
         //set values
         BaseTexture = TowerPlacement.NailGunBase;
-        BuyPrice = 45;
-        FireRate = 1;
+        BuyPrice = 75;
+        TimeToFire = 2.5f;
         MinRange = 25;
-        Damage = 2;
-        
+        Damage = 1;
+
         base.Constructor();
+    }
+
+    protected override void Fire(Attacker[] attackers)
+    {
+        for (int i = 0; i < Math.Min(attackers.Length, 4); i++) attackers[i].Hp -= Damage;
     }
 }
 
@@ -289,11 +329,13 @@ internal class Sniper : Tower
         //set values
         BaseTexture = TowerPlacement.SniperBase;
         TopTexture = TowerPlacement.SniperTop;
-        BuyPrice = 75;
-        FireRate = .2f;
+        BuyPrice = 45;
+        TimeToFire = 6;
         MinRange = 40;
-        Damage = 6;
+        Damage = Attacker.MaxHp;
 
         base.Constructor();
     }
+
+    protected override Attacker[] OrderAttackers(Attacker[] attackers) => attackers.OrderByDescending(x => x.Hp).ThenBy(DistanceFromCastle).ToArray();
 }

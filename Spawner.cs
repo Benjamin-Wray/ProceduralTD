@@ -18,13 +18,13 @@ internal class Spawner
     private float _animationTimer;
     private float _spawnTimer;
     private const float NextFrameTime = .2f;
-    private const float NextSpawnTime = 2;
+    private const float TimeToSpawn = 1;
 
     private List<Point> _shortestPath = new();
     private List<Point> _visited;
     private readonly Task _generatePath;
 
-    private List<int[]> _attackersToSpawn = new();
+    private readonly List<int[]> _attackersToSpawn = new();
     private int _waveCount;
     internal bool CanSpawn;
 
@@ -46,6 +46,7 @@ internal class Spawner
         while (!isPositionValid)
         {
             isPositionValid = true;
+            
             //generate polar coordinates
             float r = random.Next(MinSpawnRange, MaxSpawnRange); //generates a random distance within a specified range from the castle
             float angle = random.Next(0, 3600) / 10f; //generates a random angle between 0.0 and 360.0
@@ -58,17 +59,17 @@ internal class Spawner
             if (MapGenerator.MapBounds.Contains(new Rectangle(topLeftPosition, texture.Bounds.Size)))
             {
                 //check if it on water or a tower
-                Parallel.For(0, texture.Height, y =>
+                for (int y = 0; y < texture.Height; y++)
                 {
-                    Parallel.For(0, texture.Width, x =>
+                    for (int x = 0; x < texture.Width; x++)
                     {
                         Point checkPosition = new Point(x, y) + topLeftPosition;
                         if (Tower.IsInRadius(checkPosition, newPosition, texture.Width / 2f))
                         {
                             if (TowerPlacement.InvalidPositions[checkPosition.X, checkPosition.Y]) isPositionValid = false;
                         }
-                    });
-                });
+                    }
+                }
             }
             else isPositionValid = false;
         }
@@ -80,10 +81,10 @@ internal class Spawner
 
     private void FindShortestPath()
     {
-        _shortestPath = JumpPointSearch(_position, Player.Castle.Position);
+        _shortestPath = AStarSearch(_position, Player.Castle.Position);
     }
 
-    private List<Point> JumpPointSearch(Point startPoint, Point endPoint)
+    private List<Point> AStarSearch(Point startPoint, Point endPoint)
     {
         List<Point> shortestPath = new List<Point>();
         List<Point> unvisited = new List<Point> {startPoint};
@@ -157,14 +158,14 @@ internal class Spawner
         }
     }
 
-    internal static float OctileDistance(Point currentPoint, Point endPoint)
+    internal static float OctileDistance(Point currentPoint, Point endPoint, bool heuristic = true)
     {
         float dx = Math.Abs(currentPoint.X - endPoint.X);
         float dy = Math.Abs(currentPoint.Y - endPoint.Y);
-        float distance = dx + dy + (float) (Math.Sqrt(2) - 2) * Math.Min(dx, dy);
+        float distance = dx + dy + (float)(Math.Sqrt(2) - 2) * Math.Min(dx, dy);
         float heightDifference = MapGenerator.NoiseMap[endPoint.X, endPoint.Y] - MapGenerator.NoiseMap[currentPoint.X, currentPoint.Y];
 
-        return distance + heightDifference * 50;
+        return distance + heightDifference * (heuristic ? 100 : 50);
     }
     
     private static void BuildShortestPath(Point point, Dictionary<Point, Point> parentPoints, ref List<Point> shortestPath)
@@ -190,7 +191,7 @@ internal class Spawner
         
         _spawnTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        if (_spawnTimer >= NextSpawnTime)
+        if (_spawnTimer >= TimeToSpawn)
         {
             WaveManager.Attackers.Add(new Attacker(_attackersToSpawn[0][0], _position, _shortestPath));
             _attackersToSpawn[0][1]--;
@@ -200,14 +201,14 @@ internal class Spawner
                 CanSpawn = false;
                 _spawnTimer = 0;
             }
-            _spawnTimer %= NextSpawnTime;
+            _spawnTimer %= TimeToSpawn;
         }
     }
 
     internal void UpdateAttackersToSpawn()
     {
         _waveCount++;
-        int number = (_waveCount / Attacker.MaxHp + 1) * 5;
+        int number = (_waveCount / Attacker.MaxHp + 1) * 2 + 5;
         
         int maxHp = _waveCount % Attacker.MaxHp;
         if (maxHp == 0) maxHp += Attacker.MaxHp;
