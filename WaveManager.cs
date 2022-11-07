@@ -19,6 +19,13 @@ public static class WaveManager
     internal static Texture2D Pixel;
     internal static Texture2D[] AttackerColours;
     internal static Texture2D[] PortalFrames;
+
+    internal static void Initialize()
+    {
+        CurrentWave = 0;
+        Spawners.Clear();
+        Attackers.Clear();
+    }
     
     internal static void LoadContent()
     {
@@ -54,17 +61,14 @@ public static class WaveManager
 
     public static void Update(GameTime gameTime)
     {
-        Spawner[] tempSpawners = Spawners.ToArray();
-        Attacker[] tempAttackers = Attackers.ToArray();
-        foreach (Spawner spawner in tempSpawners) spawner.Update(gameTime);
-        foreach (Attacker attacker in tempAttackers) attacker.Update(gameTime);
+        foreach (Spawner spawner in Spawners.ToArray()) spawner.Update(gameTime);
+        foreach (Attacker attacker in Attackers.ToArray()) attacker.Update(gameTime);
 
-        if (tempSpawners.All(x => !x.CanSpawn) && tempAttackers.Length == 0)
+        if (Spawners.All(x => !x.CanSpawn) && Attackers.Count == 0)
         {
             if (CurrentWave % Attacker.MaxHp == 0) Spawners.Add(new Spawner());
-            //Player.Money += CurrentWave * 5;
             CurrentWave++;
-            foreach (Spawner spawner in tempSpawners) spawner.UpdateAttackersToSpawn();
+            foreach (Spawner spawner in Spawners.ToArray()) spawner.UpdateAttackersToSpawn();
         }
     }
 

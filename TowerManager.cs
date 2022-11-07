@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace ProceduralTD;
 
-public static class TowerPlacement
+public static class TowerManager
 {
     internal enum MenuOptions
     {
@@ -21,9 +21,10 @@ public static class TowerPlacement
     internal static readonly RenderTarget2D TowerTarget = new(Main.Graphics.GraphicsDevice, (int)(MapGenerator.MapWidth * Camera.CameraScale), (int)(MapGenerator.MapHeight * Camera.CameraScale));
 
     //this array is used by the program when placing towers to prevent towers from being placed on water or other towers
-    internal static readonly bool[,] InvalidPositions = new bool[MapGenerator.MapWidth, MapGenerator.MapHeight];
+    internal static bool[,] InvalidPositions = new bool[MapGenerator.MapWidth, MapGenerator.MapHeight];
     
     internal static List<Tower> PlacedTowers = new(); //stores all of the placed towers
+    internal static Castle Castle;
     internal static Tower? SelectedTower; //stored the tower the player will place
     private static int _hoveredTowerIndex; //index of the tower in the tower list that the mouse is currently hovering over
 
@@ -38,6 +39,17 @@ public static class TowerPlacement
     internal static Texture2D NailGunBase;
     internal static Texture2D SniperBase;
     internal static Texture2D SniperTop;
+
+    internal static void Initialize()
+    {
+        PlacedTowers.Clear();
+        Castle = null!;
+        
+        Player.Money = Player.StartingMoney;
+        Player.Health = Player.MaxHealth;
+        
+        SelectedTower = new Castle(); //sets the current tower to the castle
+    }
     
     internal static void LoadContent()
     {
@@ -100,8 +112,6 @@ public static class TowerPlacement
             }
         }
     }
-
-    internal static void SelectCastle() => SelectedTower = new Castle(); //runs at start of game, sets the current tower to the castle
     
     internal static void SelectTower() //called when the selected value in Ui is changed and when a tower is placed
     {
@@ -135,7 +145,7 @@ public static class TowerPlacement
         //begin drawing with sort mode set to Back To Front so the top parts of the tower sprites are always drawn above the base parts
         Main.SpriteBatch.Begin(samplerState: SamplerState.PointClamp, sortMode: SpriteSortMode.BackToFront);
 
-        Player.Castle?.DrawToMap();
+        Castle?.DrawToMap();
         foreach (Tower tower in PlacedTowers) tower.DrawToMap(); //draw the towers to the map
         SelectedTower?.DrawUnderMouse(); //draw the selected tower
 

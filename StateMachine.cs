@@ -10,7 +10,10 @@ internal static class StateMachine
         Title,
         LoadingMap,
         PlaceCastle,
-        Wave
+        Wave,
+        GameOver,
+        StartUp,
+        InitialState
     }
 
     internal enum Action
@@ -18,13 +21,15 @@ internal static class StateMachine
         StartProgram,
         LoadMap,
         BeginGame,
-        PlaceCastle
+        PlaceCastle,
+        EndGame,
+        GoToTitle
     }
 
     //the state machine's current state
     //other classes can read it but not directly assign it
     //other classes can only change the state machine's state by passing an action into the ChangeState subroutine
-    internal static State CurrentState { get; private set; }
+    internal static State CurrentState { get; private set; } = State.InitialState;
 
     //used to change the current state
     //an action is input to the state machine and the state will change depending on the action and current state
@@ -32,9 +37,15 @@ internal static class StateMachine
     {
         switch (CurrentState, action)
         {
-            case (_, Action.StartProgram): //runs when the program first starts
-                CurrentState = State.Title; //switches to the title screen
+            case (State.InitialState, Action.StartProgram): //runs when the program first starts
+                CurrentState = State.StartUp; //switches to the title screen
                 WindowManager.Initialize(); //initializes the window manager before starting the game
+                ChangeState(Action.GoToTitle);
+                break;
+            case (State.StartUp, Action.GoToTitle):
+            case (State.GameOver, Action.GoToTitle):
+                CurrentState = State.Title;
+                TitleScreen.Initialize();
                 break;
             case (State.Title, Action.LoadMap): //runs when the start button is pressed on the title screen
                 CurrentState = State.LoadingMap; //tells the program to start loading the map
@@ -42,11 +53,16 @@ internal static class StateMachine
                 break;
             case (State.LoadingMap, Action.BeginGame): //runs when the map has finished being generated
                 CurrentState = State.PlaceCastle;
-                TowerPlacement.SelectCastle();
+                WaveManager.Initialize();
+                TowerManager.Initialize();
                 break;
             case (State.PlaceCastle, Action.PlaceCastle):
                 CurrentState = State.Wave;
                 WaveManager.UpdateWave();
+                break;
+            case (State.Wave, Action.EndGame):
+                CurrentState = State.GameOver;
+                GameOverScreen.Initialize();
                 break;
         }
     }
@@ -62,9 +78,10 @@ internal static class StateMachine
     {
         WindowManager.LoadContent();
         TitleScreen.LoadContent();
-        TowerPlacement.LoadContent();
+        TowerManager.LoadContent();
         WaveManager.LoadContent();
         Ui.LoadContent();
+        GameOverScreen.LoadContent();
     }
 
     //runs every frame, mainly used for user input
@@ -82,13 +99,16 @@ internal static class StateMachine
                 break;
             case State.PlaceCastle:
                 Camera.Update(gameTime);
-                TowerPlacement.Update(gameTime);
+                TowerManager.Update(gameTime);
                 break;
             case State.Wave:
                 WaveManager.Update(gameTime);
-                TowerPlacement.Update(gameTime);
+                TowerManager.Update(gameTime);
                 Camera.Update(gameTime);
                 Ui.Update();
+                break;
+            case State.GameOver:
+                GameOverScreen.Update();
                 break;
         }
     }
@@ -108,6 +128,9 @@ internal static class StateMachine
                 break;
             case State.Wave:
                 Ui.Draw();
+                break;
+            case State.GameOver:
+                GameOverScreen.Draw();
                 break;
         }
         WindowManager.Draw(); //the window manager draws the scene to the window after the other classes have finished drawing to it 

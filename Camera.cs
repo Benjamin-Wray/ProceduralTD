@@ -44,9 +44,10 @@ internal static class Camera
 
     private const float MoveSpeed = 200; //how fast the camera moves
 
-    internal static Task GenerateMapTexture() //generate 2D array of colours to be drawn to the screen to represent height
+    internal static void GenerateMapTexture() //generate 2D array of colours to be drawn to the screen to represent height
     {
         _mapTexture = new Texture2D(Main.Graphics.GraphicsDevice, MapGenerator.MapWidth, MapGenerator.MapHeight);
+        TowerManager.InvalidPositions = new bool[MapGenerator.MapWidth, MapGenerator.MapHeight];
 
         Color[] colourMap = new Color[_mapTexture.Width * _mapTexture.Height];
 
@@ -64,12 +65,11 @@ internal static class Camera
                     }
                 }
 
-                if (MapGenerator.NoiseMap[x, y] <= MapGenerator.WaterLevel) TowerPlacement.InvalidPositions[x, y] = true;
+                if (MapGenerator.NoiseMap[x, y] <= MapGenerator.WaterLevel) TowerManager.InvalidPositions[x, y] = true;
             });
         });
         
         _mapTexture.SetData(colourMap);
-        return Task.CompletedTask;
     }
     
     //called every frame
@@ -98,7 +98,7 @@ internal static class Camera
     internal static void DrawMap() //called every frame after update
     {
         WaveManager.Draw();
-        TowerPlacement.Draw();
+        TowerManager.Draw();
 
         Main.Graphics.GraphicsDevice.SetRenderTarget(CameraTarget);
         Main.Graphics.GraphicsDevice.Clear(Color.Transparent);
@@ -106,7 +106,7 @@ internal static class Camera
         Main.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
         Main.SpriteBatch.Draw(_mapTexture, CameraPosition * CameraScale, null, Color.White, 0, Vector2.Zero, CameraScale, SpriteEffects.None, 0f);
         Main.SpriteBatch.Draw(WaveManager.SpawnerTarget, CameraPosition * CameraScale, null, Color.White, 0, Vector2.Zero, CameraScale, SpriteEffects.None, 0f);
-        Main.SpriteBatch.Draw(TowerPlacement.TowerTarget, CameraPosition * CameraScale, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0);
+        Main.SpriteBatch.Draw(TowerManager.TowerTarget, CameraPosition * CameraScale, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0);
         Main.SpriteBatch.Draw(WaveManager.AttackerTarget, CameraPosition * CameraScale, null, Color.White, 0, Vector2.Zero, CameraScale, SpriteEffects.None, 0f);
         Main.SpriteBatch.End();
     }

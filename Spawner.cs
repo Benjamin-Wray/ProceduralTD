@@ -11,7 +11,7 @@ internal class Spawner
 {
     private Point _position = Point.Zero;
     private const int MinSpawnRange = 200;
-    private const int MaxSpawnRange = 300;
+    private const int MaxSpawnRange = 400;
     
     private readonly Texture2D[] _frames = WaveManager.PortalFrames;
     private int _currentFrame;
@@ -25,7 +25,6 @@ internal class Spawner
     private readonly Task _generatePath;
 
     private readonly List<int[]> _attackersToSpawn = new();
-    private int _waveCount;
     internal bool CanSpawn;
 
     internal Spawner()
@@ -52,7 +51,7 @@ internal class Spawner
             float angle = random.Next(0, 3600) / 10f; //generates a random angle between 0.0 and 360.0
             
             //convert to cartesian coordinates and round them to integers
-            newPosition = (new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * r).ToPoint() + Player.Castle.Position;
+            newPosition = (new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * r).ToPoint() + TowerManager.Castle.Position;
             topLeftPosition = newPosition - (_frames[_currentFrame].Bounds.Size.ToVector2() / 2).ToPoint();
 
             //check if it is on the map
@@ -66,7 +65,7 @@ internal class Spawner
                         Point checkPosition = new Point(x, y) + topLeftPosition;
                         if (Tower.IsInRadius(checkPosition, newPosition, texture.Width / 2f))
                         {
-                            if (TowerPlacement.InvalidPositions[checkPosition.X, checkPosition.Y]) isPositionValid = false;
+                            if (TowerManager.InvalidPositions[checkPosition.X, checkPosition.Y]) isPositionValid = false;
                         }
                     }
                 }
@@ -81,7 +80,7 @@ internal class Spawner
 
     private void FindShortestPath()
     {
-        _shortestPath = AStarSearch(_position, Player.Castle.Position);
+        _shortestPath = AStarSearch(_position, TowerManager.Castle.Position);
     }
 
     private List<Point> AStarSearch(Point startPoint, Point endPoint)
@@ -180,7 +179,7 @@ internal class Spawner
     
     internal void Update(GameTime gameTime)
     {
-        if (_generatePath.IsCompleted) SpawnAttacker(gameTime);
+        if (_generatePath.IsCompleted && WaveManager.Spawners.All(x => x.CanSpawn)) SpawnAttacker(gameTime);
         
         Ui.PlayAnimation(gameTime, ref _animationTimer, NextFrameTime, ref _currentFrame, _frames.Length);
     }
@@ -207,10 +206,11 @@ internal class Spawner
 
     internal void UpdateAttackersToSpawn()
     {
-        _waveCount++;
-        int number = (_waveCount / Attacker.MaxHp + 1) * 2 + 5;
+        int currentWave = WaveManager.CurrentWave;
         
-        int maxHp = _waveCount % Attacker.MaxHp;
+        int number = (currentWave / Attacker.MaxHp + 1) * 2 + 5;
+        
+        int maxHp = currentWave % Attacker.MaxHp;
         if (maxHp == 0) maxHp += Attacker.MaxHp;
 
         int hp = 1;

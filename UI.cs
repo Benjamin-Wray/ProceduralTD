@@ -50,7 +50,7 @@ internal static class Ui
         private set
         {
             _selectedOption = value;
-            TowerPlacement.SelectTower();
+            TowerManager.SelectTower();
         }
     }
 
@@ -111,10 +111,10 @@ internal static class Ui
     {
         Texture2D[][] towers =
         {
-            new[] {TowerPlacement.LandMineBase},
-            new[] {TowerPlacement.CannonBase, TowerPlacement.CannonTop},
-            new[] {TowerPlacement.NailGunBase},
-            new[] {TowerPlacement.SniperBase, TowerPlacement.SniperTop}
+            new[] {TowerManager.LandMineBase},
+            new[] {TowerManager.CannonBase, TowerManager.CannonTop},
+            new[] {TowerManager.NailGunBase},
+            new[] {TowerManager.SniperBase, TowerManager.SniperTop}
         };
         RenderTarget2D[] icons = new RenderTarget2D[towers.Length];
 
@@ -246,7 +246,7 @@ internal static class Ui
 
         Vector2 drawPosition = mousePosition + new Vector2(cursor.Width * scale, -_digits['£'].Height * scale);
         Color drawColour = Player.Money >= CursorPrice.Value ? CanBuyColour : CannotBuyColour;
-        if (_selectedOption == (int)TowerPlacement.MenuOptions.Sell) drawColour = CanBuyColour;
+        if (_selectedOption == (int)TowerManager.MenuOptions.Sell) drawColour = CanBuyColour;
         DrawNumber(CursorPrice.Value.ToString(), drawPosition, drawColour, true, scale); //draws price of tower next to cursor
     }
     

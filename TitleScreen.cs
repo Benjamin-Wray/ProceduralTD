@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -29,7 +29,6 @@ public static class TitleScreen
     private const int SeedOffset = 8; //distance of the seed input box from the title
     private const int SeedStartSpace = 4; //space between the seed box and the start button
 
-
     //the positions of each texture on the screen
     private static Vector2 _titlePosition;
     private static Vector2 _seedBoxPosition;
@@ -41,10 +40,8 @@ public static class TitleScreen
 
     private static string _seed = ""; //stores the seed used for map generation
     private const int MaxSeedLength = 8; //the maximum number of digits for the seed
-
-
+    
     //the keys that can be pressed in order to input numbers into the seed input box
-
     private static readonly Dictionary<Keys, char> NumberKeys = new()
     {
         {Keys.D0, '0'}, {Keys.D1, '1'}, {Keys.D2, '2'}, {Keys.D3, '3'}, {Keys.D4, '4'}, {Keys.D5, '5'}, {Keys.D6, '6'}, {Keys.D7, '7'}, {Keys.D8, '8'}, {Keys.D9, '9'},
@@ -63,6 +60,17 @@ public static class TitleScreen
     private static float _timer; //keeps track of how much time has passed
     private const float NextFrameTime = .5f; //the number of seconds between frames in the loading animation
 
+    internal static void Initialize()
+    {
+        _startButtonIndex = 0;
+        _isStartButtonDown = false;
+        _isBackspaceDown = false;
+        foreach (Keys key in IsKeyDown.Keys.ToArray()) IsKeyDown[key] = false;
+        _loadingIndex = 0;
+        _timer = 0;
+        _seed = "";
+    }
+    
     internal static void LoadContent()
     {
         _title = Main.ContentManager.Load<Texture2D>("images/title/title"); //load title texture
@@ -116,29 +124,9 @@ public static class TitleScreen
             }
             else if (keyboardState.IsKeyUp(key) && IsKeyDown[key]) IsKeyDown[key] = false; //tells the program the key has been released
         }
-
-        //mouse input
-        MouseState mouseState = Mouse.GetState();
-        Point mousePosition = WindowManager.GetMouseInRectangle(TitleTarget.Bounds);
-
-        switch (_startRectangle.Contains(mousePosition), mouseState.LeftButton)
-        {
-            case (true, ButtonState.Released) when _isStartButtonDown: //if the left mouse button has been released from being pressed while the cursor is hovering over the button
-                LoadMap(); //Change the state machine's current state to start loading the map
-                break;
-            case (true, ButtonState.Released): //if the mouse is hovering over the start button but the left mouse button has not been pressed yet
-                _startButtonIndex = 1; //start button changes colour to indicate it can be pressed by the player
-                break;
-            case (true, ButtonState.Pressed):
-                _startButtonIndex = 2; //indicates to the player that the button has been pressed
-                _isStartButtonDown = true; //tells the program the start button has been pressed
-                break;
-            default: //the mouse is not hovering over the button
-                _startButtonIndex = 0; //start button is up
-                _isStartButtonDown = false; //tells the program the start button has not been pressed
-                break;
-        }
         
+        if(UpdateButton(_startRectangle, ref _isStartButtonDown, ref _startButtonIndex)) LoadMap();
+
         if (keyboardState.IsKeyDown(Keys.Enter)) //if the enter key was pressed
         {
             _startButtonIndex = 2; //indicate to the player that the start button has been pressed
@@ -146,7 +134,29 @@ public static class TitleScreen
         }
     }
 
-    internal static void LoadMap()
+    internal static bool UpdateButton(Rectangle buttonRectangle, ref bool isButtonDown, ref int index)
+    {
+        switch (buttonRectangle.Contains(WindowManager.GetMouseInRectangle(TitleTarget.Bounds)), Mouse.GetState().LeftButton)
+        {
+            case (true, ButtonState.Released) when isButtonDown: //if the left mouse button has been released from being pressed while the cursor is hovering over the button
+                return true;
+                break;
+            case (true, ButtonState.Released): //if the mouse is hovering over the start button but the left mouse button has not been pressed yet
+                index = 1; //start button changes colour to indicate it can be pressed by the player
+                break;
+            case (true, ButtonState.Pressed):
+                index = 2; //indicates to the player that the button has been pressed
+                isButtonDown = true; //tells the program the start button has been pressed
+                break;
+            default: //the mouse is not hovering over the button
+                index = 0; //start button is up
+                isButtonDown = false; //tells the program the start button has not been pressed
+                break;
+        }
+        return false;
+    }
+
+    private static void LoadMap()
     {
         MapGenerator.Seed = _seed == "" ? new Random().Next(0, (int)Math.Pow(10, MaxSeedLength)) : Convert.ToInt32(_seed); //generates a random seed if the user left the input box blank
         StateMachine.ChangeState(StateMachine.Action.LoadMap);

@@ -83,13 +83,13 @@ public static class WindowManager
         Color colour = Color.White; //sets the initial colour to white
         if (Camera.CameraTarget.Bounds.Contains(GetMouseInRectangle(Scene.Bounds)))
         {
-            if (Ui.SelectedOption is (int)TowerPlacement.MenuOptions.Upgrade or (int)TowerPlacement.MenuOptions.Sell) //if upgrade or sell is selected
+            if (Ui.SelectedOption is (int)TowerManager.MenuOptions.Upgrade or (int)TowerManager.MenuOptions.Sell) //if upgrade or sell is selected
             {
                 cursorTexture = Ui.ButtonDrawOrder[Ui.SelectedOption.Value];
                 newMousePosition = Ui.CentrePosition(newMousePosition, cursorTexture, scale);
                 colour.A = (byte)(colour.A * .8f);
             }
-            else if (TowerPlacement.SelectedTower != null) cursorTexture = new Texture2D(Main.Graphics.GraphicsDevice, cursorTexture.Width, cursorTexture.Height);
+            else if (TowerManager.SelectedTower != null) cursorTexture = new Texture2D(Main.Graphics.GraphicsDevice, cursorTexture.Width, cursorTexture.Height);
         }
 
         Main.Graphics.GraphicsDevice.SetRenderTarget(Scene);
