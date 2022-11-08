@@ -30,7 +30,7 @@ internal class Spawner
     internal Spawner()
     {
         SetPosition();
-        _generatePath = Task.Run(FindShortestPath);
+        _generatePath = Task.Run(FindShortestPath); //starts generating the path asynchronously 
         UpdateAttackersToSpawn();
     }
 
@@ -78,65 +78,79 @@ internal class Spawner
         Tower.UpdateSpaceValidity(true, texture, _position, topLeftPosition);
     }
 
-    private void FindShortestPath()
-    {
-        _shortestPath = AStarSearch(_position, TowerManager.Castle.Position);
-    }
+    private void FindShortestPath() => _shortestPath = AStarSearch(_position, TowerManager.Castle.Position); //calculates the shortest path between the spawner and the castle
 
     private List<Point> AStarSearch(Point startPoint, Point endPoint)
     {
         List<Point> shortestPath = new List<Point>();
-        List<Point> unvisited = new List<Point> {startPoint};
-        _visited = new List<Point>();
+        List<Point> unvisited = new List<Point> {startPoint}; //stores the next points that can be visited from visited points
+        _visited = new List<Point>(); //stores the points that have already been visited
 
-        Dictionary<Point, float> gScore = new Dictionary<Point, float> {{startPoint, 0}};
-        Dictionary<Point, float> fScore = new Dictionary<Point, float> {{startPoint, 0}};
-        Dictionary<Point, Point> parentPoints = new Dictionary<Point, Point>();
+        Dictionary<Point, float> gScore = new Dictionary<Point, float> {{startPoint, 0}}; //distance from the start point
+        Dictionary<Point, float> fScore = new Dictionary<Point, float> {{startPoint, 0}}; //gScore + heuristic
+        Dictionary<Point, Point> parentPoints = new Dictionary<Point, Point>(); //keeps track of where the algorithm got to each point from, used to build shortest path
 
-        while (unvisited.Count > 0)
+        while (unvisited.Count > 0) //loops until every reachable node has been visited
         {
-            unvisited = unvisited.OrderBy(x => fScore[x]).ThenBy(x => gScore[x]).ToList();
+            unvisited = unvisited.OrderBy(x => fScore[x]).ThenBy(x => gScore[x]).ToList(); //sort the unvisited list by fScore then gScore 
             
+            //set the current point to the first element in the sorted list and remove it
             Point currentPoint = unvisited[0];
             unvisited.RemoveAt(0);
 
-            CheckConnectionsAStar(currentPoint, endPoint, ref unvisited, ref _visited, ref parentPoints, ref gScore, ref fScore);
+            //check each adjacent point
+            CheckConnections(currentPoint, endPoint, ref unvisited, ref _visited, ref parentPoints, ref gScore, ref fScore);
 
-            _visited.Add(currentPoint);
+            _visited.Add(currentPoint); //set the point to visited
 
-            if (currentPoint == endPoint)
+            if (currentPoint == endPoint) //if we have reached the castle
             {
+                //build and return the shortest path
                 BuildShortestPath(endPoint, parentPoints, ref shortestPath);
                 shortestPath.Reverse();
 
                 return shortestPath;
             }
 
-            if (_visited.Count > 5000) break;
+            if (_visited.Count >= 5000) break;
         }
 
-        WaveManager.Spawners.Remove(this);
-        WaveManager.Spawners.Add(new Spawner());
-        return new List<Point>();
+        //if program exits the while loop without returning a shortest path, there is no possible path between the spawner and the castle
+        WaveManager.Spawners.Remove(this); //destroy the spawner
+        WaveManager.Spawners.Add(new Spawner()); //create a new spawner
+        return shortestPath; //shortest path will be empty
     }
 
-    private static void CheckConnection(Point connection, Point parent, Point endPoint, ref List<Point> unvisited, ref List<Point> visited, ref Dictionary<Point, Point> parentPoints, ref Dictionary<Point, float> gScore, ref Dictionary<Point, float> fScore)
+    private static void CheckConnections(Point currentPoint, Point endPoint, ref List<Point> unvisited, ref List<Point> visited, ref Dictionary<Point, Point> parentPoints, ref Dictionary<Point, float> gScore, ref Dictionary<Point, float> fScore)
     {
-        if (visited.Contains(connection)) return;
+        //check each point that is adjacent to the current point
+        List<Point> directions = new List<Point> {new(0, 1), new(1, 0), new(0, -1), new(-1, 0), new(1, 1), new(1, -1), new(-1, 1), new(-1, -1)};
+        foreach (Point direction in directions)
+        {
+            Point connection = currentPoint + direction;
+            
+            //ignore points that are out of bounds of the map, on water, or have already been visited
+            if (!MapGenerator.MapBounds.Contains(connection)) continue;
+            if (MapGenerator.NoiseMap[connection.X, connection.Y] <= MapGenerator.WaterLevel) continue;
+            if (visited.Contains(connection)) continue;
+            
+            CheckConnection(connection, currentPoint, endPoint, ref unvisited, ref parentPoints, ref gScore, ref fScore);
+        }
+    }
 
-        Point direction = connection - parent;
-        if (direction.X != 0) direction.X /= Math.Abs(direction.X);
-        if (direction.Y != 0) direction.Y /= Math.Abs(direction.Y);
-        
-        float cost = OctileDistance(parent, connection);
+    private static void CheckConnection(Point connection, Point parent, Point endPoint, ref List<Point> unvisited, ref Dictionary<Point, Point> parentPoints, ref Dictionary<Point, float> gScore, ref Dictionary<Point, float> fScore)
+    {
+        float cost = OctileDistance(parent, connection); //get cost to move from the current point to the connected point
         if (!gScore.ContainsKey(connection))
         {
+            //add connected point to parentPoints, gScore and fScore
             parentPoints.Add(connection, parent);
             gScore.Add(connection, gScore[parent] + cost);
             fScore.Add(connection, gScore[parent] + OctileDistance(parent, endPoint));
         }
         else if (gScore[parent] + cost < gScore[connection])
         {
+            //replace parentPoints, gScore and fScore with new values
             parentPoints[connection] = parent;
             gScore[connection] = gScore[parent] + cost;
             fScore[connection] = gScore[parent] + OctileDistance(parent, endPoint);
@@ -145,43 +159,35 @@ internal class Spawner
         if (!unvisited.Contains(connection)) unvisited.Add(connection);
     }
 
-    private void CheckConnectionsAStar(Point currentPoint, Point endPoint, ref List<Point> unvisited, ref List<Point> visited, ref Dictionary<Point, Point> parentPoints, ref Dictionary<Point, float> gScore, ref Dictionary<Point, float> fScore)
-    {
-        List<Point> directions = new List<Point> {new(0, 1), new(1, 0), new(0, -1), new(-1, 0), new(1, 1), new(1, -1), new(-1, 1), new(-1, -1)};
-        foreach (Point direction in directions)
-        {
-            Point connection = currentPoint + direction;
-            if (!MapGenerator.MapBounds.Contains(connection)) continue;
-            if (MapGenerator.NoiseMap[connection.X, connection.Y] <= MapGenerator.WaterLevel) continue;
-            CheckConnection(connection, currentPoint, endPoint, ref unvisited, ref visited, ref parentPoints, ref gScore, ref fScore);
-        }
-    }
-
     internal static float OctileDistance(Point currentPoint, Point endPoint, bool heuristic = true)
     {
+        //calculate octile distance between both points
         float dx = Math.Abs(currentPoint.X - endPoint.X);
         float dy = Math.Abs(currentPoint.Y - endPoint.Y);
         float distance = dx + dy + (float)(Math.Sqrt(2) - 2) * Math.Min(dx, dy);
-        float heightDifference = MapGenerator.NoiseMap[endPoint.X, endPoint.Y] - MapGenerator.NoiseMap[currentPoint.X, currentPoint.Y];
+        
+        //get difference in heights between points, height difference has a greater influence on the heuristic than the cost
+        float heightDifference = (MapGenerator.NoiseMap[endPoint.X, endPoint.Y] - MapGenerator.NoiseMap[currentPoint.X, currentPoint.Y]) * (heuristic ? 100 : 50);
 
-        return distance + heightDifference * (heuristic ? 100 : 50);
+        return distance + heightDifference;
     }
     
+    //recursively works backwards from the end to the start using the parentPoints dictionary, adding each parent to the shortest path 
     private static void BuildShortestPath(Point point, Dictionary<Point, Point> parentPoints, ref List<Point> shortestPath)
     {
         shortestPath.Add(point);
         
-        if (!parentPoints.ContainsKey(point)) return;
-        Point parentPoint = parentPoints[point];
+        if (!parentPoints.ContainsKey(point)) return; //if the current point does not have a parent, we have reached the start
 
-        BuildShortestPath(parentPoint, parentPoints, ref shortestPath);
+        BuildShortestPath(parentPoints[point], parentPoints, ref shortestPath); //add the parent of the parent point to the shortest path
     }
     
     internal void Update(GameTime gameTime)
     {
-        if (_generatePath.IsCompleted && WaveManager.Spawners.All(x => x.CanSpawn)) SpawnAttacker(gameTime);
+        //only spawn attackers when every spawner's path has been completed, this means the spawners will begin spawning attackers at the same time
+        if (WaveManager.Spawners.All(x => x._generatePath.IsCompleted)) SpawnAttacker(gameTime);
         
-        Ui.PlayAnimation(gameTime, ref _animationTimer, NextFrameTime, ref _currentFrame, _frames.Length);
+        Ui.PlayAnimation(gameTime, ref _animationTimer, NextFrameTime, ref _currentFrame, _frames.Length); //update idle animation
     }
 
     private void SpawnAttacker(GameTime gameTime)
@@ -206,11 +212,11 @@ internal class Spawner
 
     internal void UpdateAttackersToSpawn()
     {
-        int currentWave = WaveManager.CurrentWave;
+        _attackersToSpawn.Clear();
         
-        int number = (currentWave / Attacker.MaxHp + 1) * 2 + 5;
+        int number = (WaveManager.CurrentWave / Attacker.MaxHp + 1) * 2 + 5;
         
-        int maxHp = currentWave % Attacker.MaxHp;
+        int maxHp = WaveManager.CurrentWave % Attacker.MaxHp;
         if (maxHp == 0) maxHp += Attacker.MaxHp;
 
         int hp = 1;

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -61,14 +62,17 @@ public static class WaveManager
 
     public static void Update(GameTime gameTime)
     {
-        foreach (Spawner spawner in Spawners.ToArray()) spawner.Update(gameTime);
-        foreach (Attacker attacker in Attackers.ToArray()) attacker.Update(gameTime);
+        Spawner[] tempSpawners = Spawners.ToArray();
+        Attacker[] tempAttackers = Attackers.ToArray();
+        
+        foreach (Spawner spawner in tempSpawners) spawner.Update(gameTime);
+        foreach (Attacker attacker in tempAttackers) attacker.Update(gameTime);
 
-        if (Spawners.All(x => !x.CanSpawn) && Attackers.Count == 0)
+        if (Spawners.All(x => !x.CanSpawn) && tempAttackers.Length == 0)
         {
             if (CurrentWave % Attacker.MaxHp == 0) Spawners.Add(new Spawner());
             CurrentWave++;
-            foreach (Spawner spawner in Spawners.ToArray()) spawner.UpdateAttackersToSpawn();
+            foreach (Spawner spawner in Spawners) spawner.UpdateAttackersToSpawn();
         }
     }
 

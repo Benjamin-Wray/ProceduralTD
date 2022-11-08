@@ -7,7 +7,7 @@ namespace ProceduralTD
         internal static Main Game;
         
         [STAThread]
-        static void Main()
+        private static void Main()
         {
             Game = new Main();
             Game.Run();

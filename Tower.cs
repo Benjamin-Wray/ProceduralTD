@@ -210,6 +210,7 @@ internal abstract class Tower
     protected virtual void Fire(Attacker[] attackers)
     {
         Attacker attackerToShoot = attackers.First();
+        Player.Money += Math.Min(attackerToShoot.Hp, Damage);
         attackerToShoot.Hp -= Damage;
     }
 }
@@ -276,6 +277,7 @@ internal class LandMine : Tower
     {
         foreach (Attacker attacker in attackers)
         {
+            Player.Money += Math.Min(attacker.Hp, Damage);
             attacker.Hp -= Damage;
         }
         UpdateTowerSpaceValidity(false);
@@ -317,7 +319,11 @@ internal class NailGun : Tower
 
     protected override void Fire(Attacker[] attackers)
     {
-        for (int i = 0; i < Math.Min(attackers.Length, 4); i++) attackers[i].Hp -= Damage;
+        for (int i = 0; i < Math.Min(attackers.Length, 4); i++)
+        {
+            Player.Money += Math.Min(attackers[i].Hp, Damage);
+            attackers[i].Hp -= Damage;
+        }
     }
 }
 
@@ -331,7 +337,7 @@ internal class Sniper : Tower
         BuyPrice = 45;
         TimeToFire = 6;
         MinRange = 40;
-        Damage = Attacker.MaxHp;
+        Damage = Attacker.MaxHp+1;
 
         base.Constructor();
     }
