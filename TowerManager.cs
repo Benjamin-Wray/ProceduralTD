@@ -46,7 +46,7 @@ public static class TowerManager
         Castle = null!;
         
         Player.Money = Player.StartingMoney;
-        Player.Health = Player.MaxHealth;
+        Player.Health = Player.StartingHealth;
         
         SelectedTower = new Castle(); //sets the current tower to the castle
     }
