@@ -185,15 +185,15 @@ internal abstract class Tower
     
     internal void Update(GameTime gameTime)
     {
-        Attacker[] attackersInRange = WaveManager.Attackers.Where(attacker => DistanceFromTower(attacker) <= _range).ToArray();
-        if (attackersInRange.Length == 0)
+        Attacker[] attackersInRange = WaveManager.Attackers.Where(attacker => DistanceFromTower(attacker) <= _range).ToArray(); //get attackers positioned within the tower's range
+        if (attackersInRange.Length == 0) //if there are no attackers in range
         {
             _fireTimer = 0;
             return;
         }
 
-        attackersInRange = OrderAttackers(attackersInRange);
-        _topAngle = MathF.Atan2(attackersInRange.First().Position.Y - _position.Y, attackersInRange.First().Position.X - _position.X);
+        attackersInRange = OrderAttackers(attackersInRange); //sort attackers differently depending on the tower
+        _topAngle = MathF.Atan2(attackersInRange.First().Position.Y - _position.Y, attackersInRange.First().Position.X - _position.X); //calculate angle from tower to attacker
 
         _fireTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
         if (_fireTimer >= TimeToFire)
@@ -202,13 +202,14 @@ internal abstract class Tower
             Fire(attackersInRange);
         }
     }
-
-    private float DistanceFromTower(Attacker attacker) => Vector2.Distance(attacker.Position.ToVector2(), Position.ToVector2());
     
-    protected virtual Attacker[] OrderAttackers(Attacker[] attackers) => attackers;
+    private float DistanceFromTower(Attacker attacker) => Vector2.Distance(attacker.Position.ToVector2(), Position.ToVector2()); //returns attacker's distance from the tower
+    
+    protected virtual Attacker[] OrderAttackers(Attacker[] attackers) => attackers; //leave attackers in original order by default
 
     protected virtual void Fire(Attacker[] attackers)
     {
+        //select first attacker in the list and subtract the tower's damage from it's health
         Attacker attackerToShoot = attackers.First();
         Player.Money += Math.Min(attackerToShoot.Hp, Damage);
         attackerToShoot.Hp -= Damage;
@@ -219,6 +220,7 @@ internal class Castle : Tower
 {
     protected override void Constructor()
     {
+        //castle only has a texture
         BaseTexture = TowerManager.CastleBase;
         base.Constructor();
     }
@@ -234,7 +236,7 @@ internal class Castle : Tower
 
     protected override void UpdateRange()
     {
-        //ignore
+        //castles do not have range so we ignore this subroutine
     }
     
     internal override void DrawToMap(Color drawColour = default)
@@ -256,7 +258,7 @@ internal class LandMine : Tower
         BuyPrice = 10;
         TimeToFire = 2;
         MinRange = 15;
-        Damage = 5;
+        Damage = Attacker.MaxHp;
         
         base.Constructor();
     }
@@ -275,11 +277,14 @@ internal class LandMine : Tower
 
     protected override void Fire(Attacker[] attackers)
     {
+        //damage every attacker within range
         foreach (Attacker attacker in attackers)
         {
             Player.Money += Math.Min(attacker.Hp, Damage);
             attacker.Hp -= Damage;
         }
+        
+        //remove the tower
         UpdateTowerSpaceValidity(false);
         TowerManager.PlacedTowers.Remove(this);
     }
@@ -315,10 +320,11 @@ internal class NailGun : Tower
         base.Constructor();
     }
     
-    protected override Attacker[] OrderAttackers(Attacker[] attackers) => attackers.OrderBy(_ => new Random().Next()).ToArray();
+    protected override Attacker[] OrderAttackers(Attacker[] attackers) => attackers.OrderBy(_ => new Random().Next()).ToArray(); //the attackers that will be damaged will be randomly selected
 
     protected override void Fire(Attacker[] attackers)
     {
+        //damage 4 random attackers
         for (int i = 0; i < Math.Min(attackers.Length, 4); i++)
         {
             Player.Money += Math.Min(attackers[i].Hp, Damage);
@@ -337,10 +343,10 @@ internal class Sniper : Tower
         BuyPrice = 45;
         TimeToFire = 6;
         MinRange = 40;
-        Damage = Attacker.MaxHp+1;
+        Damage = Attacker.MaxHp;
 
         base.Constructor();
     }
 
-    protected override Attacker[] OrderAttackers(Attacker[] attackers) => attackers.OrderByDescending(x => x.Hp).ToArray();
+    protected override Attacker[] OrderAttackers(Attacker[] attackers) => attackers.OrderByDescending(x => x.Hp).ToArray(); //targets the towers with the highest health
 }

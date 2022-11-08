@@ -198,10 +198,10 @@ internal class Spawner
 
         if (_spawnTimer >= TimeToSpawn)
         {
-            WaveManager.Attackers.Add(new Attacker(_attackersToSpawn[0][0], _position, _shortestPath));
-            _attackersToSpawn[0][1]--;
-            if (_attackersToSpawn[0][1] <= 0) _attackersToSpawn.RemoveAt(0);
-            if (_attackersToSpawn.Count == 0)
+            WaveManager.Attackers.Add(new Attacker(_attackersToSpawn[0][0], _position, _shortestPath)); //get attacker at first position in list
+            _attackersToSpawn[0][1]--; //decrement attacker count
+            if (_attackersToSpawn[0][1] <= 0) _attackersToSpawn.RemoveAt(0); //if attacker count is zero, remove it from the list
+            if (_attackersToSpawn.Count == 0) //if there are no attackers left to spawn
             {
                 CanSpawn = false;
                 _spawnTimer = 0;
@@ -212,18 +212,13 @@ internal class Spawner
 
     internal void UpdateAttackersToSpawn()
     {
-        _attackersToSpawn.Clear();
-        
+        //calculate number of attackers to spawn
         int number = (WaveManager.CurrentWave / Attacker.MaxHp + 1) * 2 + 5;
-        
         int maxHp = WaveManager.CurrentWave % Attacker.MaxHp;
         if (maxHp == 0) maxHp += Attacker.MaxHp;
 
         int hp = 1;
-        while (hp <= maxHp)
-        {
-            _attackersToSpawn.Add(new[] {hp++, number});
-        }
+        while (hp <= maxHp) _attackersToSpawn.Add(new[] {hp++, number}); //add attackers to list
         
         CanSpawn = true;
     }

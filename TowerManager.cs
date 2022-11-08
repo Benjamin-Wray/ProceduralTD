@@ -42,9 +42,11 @@ public static class TowerManager
 
     internal static void Initialize()
     {
+        //remove any placed towers from the map
         PlacedTowers.Clear();
         Castle = null!;
         
+        //set money and hp to default values
         Player.Money = Player.StartingMoney;
         Player.Health = Player.StartingHealth;
         
@@ -87,11 +89,7 @@ public static class TowerManager
                 break;
         }
 
-        Tower[] tempPlacedTowers = PlacedTowers.ToArray();
-        foreach (Tower tower in tempPlacedTowers)
-        {
-            tower.Update(gameTime);
-        }
+        foreach (Tower tower in PlacedTowers.ToArray()) tower.Update(gameTime); //update each placed tower
     }
     
     private static void OnClick()

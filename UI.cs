@@ -109,6 +109,7 @@ internal static class Ui
 
     private static void DrawTowerIcons()
     {
+        //create array of textures for each tower
         Texture2D[][] towers =
         {
             new[] {TowerManager.LandMineBase},
@@ -116,27 +117,30 @@ internal static class Ui
             new[] {TowerManager.NailGunBase},
             new[] {TowerManager.SniperBase, TowerManager.SniperTop}
         };
-        RenderTarget2D[] icons = new RenderTarget2D[towers.Length];
 
         for (int i = 0; i < towers.Length; i++)
         {
-            icons[i] = new RenderTarget2D(Main.Graphics.GraphicsDevice, ButtonSize, ButtonSize);
-            Main.Graphics.GraphicsDevice.SetRenderTarget(icons[i]);
+            //create render target to draw tower to
+            RenderTarget2D buttonTexture = new RenderTarget2D(Main.Graphics.GraphicsDevice, ButtonSize, ButtonSize);
+            Main.Graphics.GraphicsDevice.SetRenderTarget(buttonTexture);
             Main.Graphics.GraphicsDevice.Clear(Color.Transparent);
             
+            //draw tower to render target
             Main.SpriteBatch.Begin();
-            foreach (Texture2D texture in towers[i]) Main.SpriteBatch.Draw(texture, CentrePosition(icons[i].Bounds.Center.ToVector2(), texture), Color.White);
+            foreach (Texture2D texture in towers[i]) Main.SpriteBatch.Draw(texture, CentrePosition(buttonTexture.Bounds.Center.ToVector2(), texture), Color.White);
             Main.SpriteBatch.End();
 
-            ButtonDrawOrder[i] = icons[i];
+            ButtonDrawOrder[i] = buttonTexture;
         }
 
+        //set upgrade and sell button textures
         ButtonDrawOrder[4] = _upgrade;
         ButtonDrawOrder[5] = _sell;
     }
     
     private static void CalculateTextPosition()
     {
+        //calculate position to draw the counters
         _healthPosition = HeartPosition + new Vector2(_heart.Width + 2, 2);
         _moneyPosition = CoinPosition + new Vector2(_coin.Width + 2, 2);
         _waveCountPosition = WavePosition + new Vector2(_wave.Width, 0);
@@ -144,14 +148,11 @@ internal static class Ui
 
     internal static void Update()
     {
-        if (Camera.CameraTarget.Bounds.Contains(WindowManager.GetMouseInRectangle(WindowManager.Scene.Bounds)))
+        if (Camera.CameraTarget.Bounds.Contains(WindowManager.GetMouseInRectangle(WindowManager.Scene.Bounds))) //if the mouse is not on the map
         {
-            if (SelectedOption < 4 || !_selectedOption.HasValue) CursorPrice = null;
-            return;
+            if (SelectedOption < 4 || !_selectedOption.HasValue) CursorPrice = null; //don't draw price by cursor unless hovering over button
+            return; //stop mouse input while mouse is not on map
         }
-
-        MouseState mouseState = Mouse.GetState();
-        Point mousePosition = WindowManager.GetMouseInRectangle(HudTarget.Bounds); //gets the position of the mouse on the ui render target
         
         //set hover and cursor price to null at the start of each frame so the hover frame is removed when the mouse is not over a button
         _hover = null; 
@@ -165,9 +166,9 @@ internal static class Ui
             if (x >= 2) position.Y += 8; //the last row will be slightly lower to separate the tower buttons from the utility options
             
             Rectangle buttonBounds = new Rectangle((position - _buttonBackground.Bounds.Size.ToVector2() / 2).ToPoint(), _buttonBackground.Bounds.Size); //the rectangle our button in in
-            if (buttonBounds.Contains(mousePosition)) //check if the mouse is within the bounds of the button
+            if (buttonBounds.Contains(WindowManager.GetMouseInRectangle(HudTarget.Bounds))) //check if the mouse is within the bounds of the button
             {
-                switch (mouseState.LeftButton, _leftMouseDown) //check if the left mouse button is down
+                switch (Mouse.GetState().LeftButton, _leftMouseDown) //check if the left mouse button is down
                 {
                     case (ButtonState.Pressed, false): //only executes for the first frame the button is pressed
                         SelectedOption = SelectedOption == i ? null : i; //selects the clicked button but deselects it if the button clicked is already selected
@@ -198,10 +199,7 @@ internal static class Ui
         }
     }
 
-    internal static Vector2 CentrePosition(Vector2 position, Texture2D texture, float scale = 1)
-    {
-        return position - texture.Bounds.Size.ToVector2() * scale / 2f;
-    }
+    internal static Vector2 CentrePosition(Vector2 position, Texture2D texture, float scale = 1) => position - texture.Bounds.Size.ToVector2() * scale / 2f; //offset position of texture so it is drawn at the centre
     
     private static void DrawUi()
     {

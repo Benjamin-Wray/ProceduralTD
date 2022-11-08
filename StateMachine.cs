@@ -7,13 +7,13 @@ internal static class StateMachine
 {
     internal enum State
     {
+        InitialState,
         Title,
         LoadingMap,
         PlaceCastle,
         Wave,
         GameOver,
-        StartUp,
-        InitialState
+        StartUp
     }
 
     internal enum Action
@@ -37,9 +37,9 @@ internal static class StateMachine
     {
         switch (CurrentState, action)
         {
-            case (State.InitialState, Action.StartProgram): //runs when the program first starts
-                CurrentState = State.StartUp; //switches to the title screen
-                WindowManager.Initialize(); //initializes the window manager before starting the game
+            case (State.InitialState, Action.StartProgram):
+                CurrentState = State.StartUp;
+                WindowManager.Initialize();
                 ChangeState(Action.GoToTitle);
                 break;
             case (State.StartUp, Action.GoToTitle):
@@ -47,18 +47,18 @@ internal static class StateMachine
                 CurrentState = State.Title;
                 TitleScreen.Initialize();
                 break;
-            case (State.Title, Action.LoadMap): //runs when the start button is pressed on the title screen
-                CurrentState = State.LoadingMap; //tells the program to start loading the map
+            case (State.Title, Action.LoadMap):
+                CurrentState = State.LoadingMap;
                 Task.Run(MapGenerator.GenerateNoiseMap); //generates the map asynchronously so the user can still move their mouse, resize the window, etc while the map loads
                 break;
-            case (State.LoadingMap, Action.BeginGame): //runs when the map has finished being generated
+            case (State.LoadingMap, Action.BeginGame):
                 CurrentState = State.PlaceCastle;
                 WaveManager.Initialize();
                 TowerManager.Initialize();
                 break;
             case (State.PlaceCastle, Action.PlaceCastle):
                 CurrentState = State.Wave;
-                WaveManager.UpdateWave();
+                WaveManager.StartWaves();
                 break;
             case (State.Wave, Action.EndGame):
                 CurrentState = State.GameOver;
@@ -124,8 +124,6 @@ internal static class StateMachine
                 TitleScreen.Draw();
                 break;
             case State.PlaceCastle:
-                Ui.Draw();
-                break;
             case State.Wave:
                 Ui.Draw();
                 break;
