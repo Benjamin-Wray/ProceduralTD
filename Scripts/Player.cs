@@ -25,7 +25,11 @@ internal static class Player
         set
         {
             _health = Math.Clamp(value, 0, StartingHealth); //prevents health from being negative
-            if (_health == 0) StateMachine.ChangeState(StateMachine.Action.EndGame); //when the player's health reaches zero, the game ends
+            if (_health == 0)
+            {
+                Ui.CursorPrice = null; //clears the cursor price so it does not carry over to the title screen
+                StateMachine.ChangeState(StateMachine.Action.EndGame); //when the player's health reaches zero, the game ends
+            }
         }
     }
 }
