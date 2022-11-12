@@ -102,10 +102,10 @@ internal static class StateMachine
                 TowerManager.Update(gameTime);
                 break;
             case State.Wave:
-                WaveManager.Update(gameTime);
-                TowerManager.Update(gameTime);
                 Camera.Update(gameTime);
                 Ui.Update();
+                TowerManager.Update(gameTime);
+                WaveManager.Update(gameTime);
                 break;
             case State.GameOver:
                 GameOverScreen.Update();

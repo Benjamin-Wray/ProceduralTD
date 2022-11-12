@@ -39,6 +39,7 @@ public static class GameOverScreen
     internal static void Initialize()
     {
         Ui.CursorPrice = null; //clears the cursor price so it does not carry over from the previous screen
+        Ui.SelectedOption = null; //clears selected option so save/upgrade icon is not carried over from the previous screen
         _yesButtonIndex = 0;
         _noButtonIndex = 0;
         _isYesButtonDown = false;

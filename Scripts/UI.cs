@@ -47,7 +47,7 @@ internal static class Ui
     internal static int? SelectedOption
     {
         get => _selectedOption;
-        private set
+        set
         {
             _selectedOption = value;
             TowerManager.SelectTower();
