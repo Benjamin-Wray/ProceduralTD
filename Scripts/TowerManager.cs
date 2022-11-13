@@ -32,13 +32,13 @@ public static class TowerManager
     private static bool _isLeftMouseDown; //tells the program if the mouse is currently down
 
     //tower textures
-    internal static Texture2D CastleBase;
-    internal static Texture2D LandMineBase;
-    internal static Texture2D CannonBase;
-    internal static Texture2D CannonTop;
-    internal static Texture2D NailGunBase;
-    internal static Texture2D SniperBase;
-    internal static Texture2D SniperTop;
+    internal static Texture2D? CastleBase;
+    internal static Texture2D? LandMineBase;
+    internal static Texture2D? CannonBase;
+    internal static Texture2D? CannonTop;
+    internal static Texture2D? NailGunBase;
+    internal static Texture2D? SniperBase;
+    internal static Texture2D? SniperTop;
 
     internal static void Initialize()
     {

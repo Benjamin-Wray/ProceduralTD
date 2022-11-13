@@ -25,14 +25,14 @@ internal static class Ui
     internal static readonly Color CannotBuyColour = new(130, 33, 29);
 
     //background drawn behind the button icon
-    private static Texture2D _buttonBackground;
+    private static Texture2D? _buttonBackground;
 
     //utility textures
-    private static Texture2D _upgrade;
-    private static Texture2D _sell;
+    private static Texture2D? _upgrade;
+    private static Texture2D? _sell;
     
     //the order the buttons will be drawn in
-    internal static readonly Texture2D[] ButtonDrawOrder = new Texture2D[6];
+    internal static readonly Texture2D?[] ButtonDrawOrder = new Texture2D?[6];
 
     //counter icon textures
     private static Texture2D _heart;
@@ -110,7 +110,7 @@ internal static class Ui
     private static void DrawTowerIcons()
     {
         //create array of textures for each tower
-        Texture2D[][] towers =
+        Texture2D?[][] towers =
         {
             new[] {TowerManager.LandMineBase},
             new[] {TowerManager.CannonBase, TowerManager.CannonTop},
@@ -121,13 +121,13 @@ internal static class Ui
         for (int i = 0; i < towers.Length; i++)
         {
             //create render target to draw tower to
-            RenderTarget2D buttonTexture = new RenderTarget2D(Main.Graphics.GraphicsDevice, ButtonSize, ButtonSize);
+            RenderTarget2D? buttonTexture = new RenderTarget2D(Main.Graphics.GraphicsDevice, ButtonSize, ButtonSize);
             Main.Graphics.GraphicsDevice.SetRenderTarget(buttonTexture);
             Main.Graphics.GraphicsDevice.Clear(Color.Transparent);
             
             //draw tower to render target
             Main.SpriteBatch.Begin();
-            foreach (Texture2D texture in towers[i]) Main.SpriteBatch.Draw(texture, CentrePosition(buttonTexture.Bounds.Center.ToVector2(), texture), Color.White);
+            foreach (Texture2D? texture in towers[i]) Main.SpriteBatch.Draw(texture, CentrePosition(buttonTexture.Bounds.Center.ToVector2(), texture), Color.White);
             Main.SpriteBatch.End();
 
             ButtonDrawOrder[i] = buttonTexture;
@@ -199,7 +199,7 @@ internal static class Ui
         }
     }
 
-    internal static Vector2 CentrePosition(Vector2 position, Texture2D texture, float scale = 1) => position - texture.Bounds.Size.ToVector2() * scale / 2f; //offset position of texture so it is drawn at the centre
+    internal static Vector2 CentrePosition(Vector2 position, Texture2D? texture, float scale = 1) => position - texture.Bounds.Size.ToVector2() * scale / 2f; //offset position of texture so it is drawn at the centre
     
     private static void DrawUi()
     {
@@ -238,7 +238,7 @@ internal static class Ui
         Main.SpriteBatch.End();
     }
 
-    internal static void DrawCursorPrice(Vector2 mousePosition, Texture2D cursor, float scale)
+    internal static void DrawCursorPrice(Vector2 mousePosition, Texture2D? cursor, float scale)
     {
         if (CursorPrice == null) return;
 

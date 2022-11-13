@@ -13,7 +13,7 @@ internal class Spawner
     private const int MinSpawnRange = 200;
     private const int MaxSpawnRange = 400;
     
-    private readonly Texture2D[] _frames = WaveManager.PortalFrames;
+    private readonly Texture2D?[] _frames = WaveManager.PortalFrames;
     private int _currentFrame;
     private float _animationTimer;
     private float _spawnTimer;
@@ -36,7 +36,7 @@ internal class Spawner
 
     private void SetPosition()
     {
-        Texture2D texture = _frames[_currentFrame];
+        Texture2D? texture = _frames[_currentFrame];
         Random random = new Random();
         Point newPosition = Point.Zero;
         Point topLeftPosition = Point.Zero;

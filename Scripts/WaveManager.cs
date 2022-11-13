@@ -17,7 +17,7 @@ public static class WaveManager
 
     internal static Texture2D Pixel;
     internal static Texture2D[] AttackerColours;
-    internal static Texture2D[] PortalFrames;
+    internal static Texture2D?[] PortalFrames;
 
     internal static void Initialize()
     {
@@ -44,7 +44,7 @@ public static class WaveManager
             Main.ContentManager.Load<Texture2D>("images/map/bubbles/bubble_purple")
         };
         
-        PortalFrames = new[]
+        PortalFrames = new Texture2D?[]
         {
             Main.ContentManager.Load<Texture2D>("images/map/portal/portal1"),
             Main.ContentManager.Load<Texture2D>("images/map/portal/portal2"),

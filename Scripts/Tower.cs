@@ -9,8 +9,8 @@ namespace ProceduralTD;
 internal abstract class Tower
 {
     //textures
-    internal Texture2D BaseTexture; //every tower has a base texture
-    internal Texture2D TopTexture; //top part that rotates to point to nearest enemy
+    internal Texture2D? BaseTexture; //every tower has a base texture
+    internal Texture2D? TopTexture; //top part that rotates to point to nearest enemy
 
     //position of the tower
     private Point _position;
@@ -61,7 +61,7 @@ internal abstract class Tower
 
     protected void UpdateTowerSpaceValidity(bool newValue) => UpdateSpaceValidity(newValue, BaseTexture, Position, _topLeftPosition, this is Castle);
 
-    internal static void UpdateSpaceValidity(bool newValue, Texture2D texture, Point position, Point topLeftPosition, bool isCastle = false)
+    internal static void UpdateSpaceValidity(bool newValue, Texture2D? texture, Point position, Point topLeftPosition, bool isCastle = false)
     {
         //iterates through the square of the grid the tower is in
         for (int y = 0; y < texture.Height; y++)

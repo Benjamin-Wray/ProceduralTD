@@ -17,7 +17,7 @@ internal static class Player
         }
     }
 
-    internal const int StartingHealth = 1; //health the player has at the start of the game
+    internal const int StartingHealth = 100; //health the player has at the start of the game
     private static int _health;
     internal static int Health
     {

@@ -9,15 +9,13 @@ public static class WindowManager
 {
     internal static RenderTarget2D Scene { get; private set; } //the whole game will be drawn to this render target so it can be scaled to any resolution
 
-    private static Texture2D _cursor; //mouse cursor texture
+    private static Texture2D? _cursor; //mouse cursor texture
 
     private static bool _f11Down; //boolean for keeping track of if the f11 key is currently down
 
     //window dimensions
-    private const int DefaultWindowWidth = 1280;
-    private const int DefaultWindowHeight = 720;
-    private static int _currentWidth = DefaultWindowWidth;
-    private static int _currentHeight = DefaultWindowHeight;
+    private static int _currentWidth;
+    private static int _currentHeight;
     private static int _windowedWidth;
     private static int _windowedHeight;
 
@@ -25,6 +23,12 @@ public static class WindowManager
     private const int SceneWidth = 1920;
     private const int SceneHeight = 1080;
     private static Rectangle _sceneSize;
+    
+    //mouse
+    private static Vector2 _mousePosition;
+    private static Texture2D? _cursorTexture;
+    private static Color _mouseColour;
+    private const float MouseScale = SceneHeight / (float)Ui.UiHeight;
 
     internal static void Initialize()
     {
@@ -61,6 +65,20 @@ public static class WindowManager
             FullScreenToggle();
         }
         else if (keyboardState.IsKeyUp(Keys.F11)) _f11Down = false;
+        
+        _mousePosition = GetMouseInRectangle(Scene.Bounds).ToVector2(); //get the position of the mouse on the render target
+        _cursorTexture = _cursor; //sets the texture to be drawn as the cursor
+        _mouseColour = Color.White; //sets the initial colour to white
+        if (Camera.CameraTarget.Bounds.Contains(GetMouseInRectangle(Scene.Bounds)))
+        {
+            if (Ui.SelectedOption is (int)TowerManager.MenuOptions.Upgrade or (int)TowerManager.MenuOptions.Sell) //if upgrade or sell is selected
+            {
+                _cursorTexture = Ui.ButtonDrawOrder[Ui.SelectedOption.Value];
+                _mousePosition = Ui.CentrePosition(_mousePosition, _cursorTexture, MouseScale);
+                _mouseColour.A = (byte)(_mouseColour.A * .8f);
+            }
+            else if (TowerManager.SelectedTower != null) _cursorTexture = null;
+        }
     }
 
     internal static Point GetMouseInRectangle(Rectangle renderTargetBounds)
@@ -76,27 +94,13 @@ public static class WindowManager
     //draws the mouse to the screen
     private static void DrawMouse()
     {
-        Vector2 newMousePosition = GetMouseInRectangle(Scene.Bounds).ToVector2(); //get the position of the mouse on the render target
-        float scale = _sceneSize.Height / (float)Ui.UiHeight;
-
-        Texture2D cursorTexture = _cursor; //sets the texture to be drawn as the cursor
-        Color colour = Color.White; //sets the initial colour to white
-        if (Camera.CameraTarget.Bounds.Contains(GetMouseInRectangle(Scene.Bounds)))
-        {
-            if (Ui.SelectedOption is (int)TowerManager.MenuOptions.Upgrade or (int)TowerManager.MenuOptions.Sell) //if upgrade or sell is selected
-            {
-                cursorTexture = Ui.ButtonDrawOrder[Ui.SelectedOption.Value];
-                newMousePosition = Ui.CentrePosition(newMousePosition, cursorTexture, scale);
-                colour.A = (byte)(colour.A * .8f);
-            }
-            else if (TowerManager.SelectedTower != null) cursorTexture = new Texture2D(Main.Graphics.GraphicsDevice, cursorTexture.Width, cursorTexture.Height);
-        }
-
+        if (_cursorTexture == null) return;
+        
         Main.Graphics.GraphicsDevice.SetRenderTarget(Scene);
         Main.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
-
-        Main.SpriteBatch.Draw(cursorTexture, newMousePosition, null, colour, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f); //draw the mouse to the render target
-        Ui.DrawCursorPrice(newMousePosition, cursorTexture, scale);
+        
+        Main.SpriteBatch.Draw(_cursorTexture, _mousePosition, null, _mouseColour, 0f, Vector2.Zero, MouseScale, SpriteEffects.None, 0f); //draw the mouse to the render target
+        Ui.DrawCursorPrice(_mousePosition, _cursorTexture, MouseScale);
         
         Main.SpriteBatch.End();
     }
@@ -115,8 +119,12 @@ public static class WindowManager
     
     private static void SetWindowSize() //set initial window dimensions
     {
-        _windowedWidth = DefaultWindowWidth;
-        _windowedHeight = DefaultWindowHeight;
+        int defaultWindowWidth = (int)(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width * 3/4f);
+        int defaultWindowHeight = (int)(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height * 3/4f);
+        _currentWidth = defaultWindowWidth;
+        _currentHeight = defaultWindowHeight;
+        _windowedWidth = defaultWindowWidth;
+        _windowedHeight = defaultWindowHeight;
         Main.Graphics.PreferredBackBufferWidth = _windowedWidth;
         Main.Graphics.PreferredBackBufferHeight = _windowedHeight;
         Main.Graphics.ApplyChanges();
