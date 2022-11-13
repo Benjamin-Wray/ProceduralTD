@@ -47,10 +47,7 @@ public static class WindowManager
     }
 
     //called whenever the game window is resized
-    private static void OnResize(object? sender, EventArgs eventArgs)
-    {
-        SetSceneSize(); //update the size and position of the scene render target to fit new window size
-    }
+    private static void OnResize(object? sender, EventArgs eventArgs) => SetSceneSize(); //update the size and position of the scene render target to fit new window size
 
     internal static void Update()
     {
@@ -119,12 +116,24 @@ public static class WindowManager
     
     private static void SetWindowSize() //set initial window dimensions
     {
+        //dimensions of window at launch should be about 3/4 of the size of the screen
         int defaultWindowWidth = (int)(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width * 3/4f);
         int defaultWindowHeight = (int)(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height * 3/4f);
+        
+        float windowAspect = defaultWindowWidth / (float)defaultWindowHeight;
+        float sceneAspect = SceneWidth / (float) SceneHeight;
+
+        //if window aspect ratio is wider than scene aspect ratio
+        if (windowAspect > sceneAspect) defaultWindowWidth = SceneWidth * defaultWindowHeight / SceneHeight;
+        //if window aspect ratio is taller than scene aspect ratio
+        else if (windowAspect < sceneAspect) defaultWindowHeight = SceneHeight * defaultWindowWidth / SceneWidth;
+        
         _currentWidth = defaultWindowWidth;
         _currentHeight = defaultWindowHeight;
         _windowedWidth = defaultWindowWidth;
         _windowedHeight = defaultWindowHeight;
+        
+        //set dimensions
         Main.Graphics.PreferredBackBufferWidth = _windowedWidth;
         Main.Graphics.PreferredBackBufferHeight = _windowedHeight;
         Main.Graphics.ApplyChanges();
