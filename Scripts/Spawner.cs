@@ -112,16 +112,16 @@ internal class Spawner
                 return shortestPath;
             }
 
-            if (_visited.Count >= 5000) break;
+            if (_visited.Count >= 10000) break;
         }
 
         //if program exits the while loop without returning a shortest path, there is no possible path between the spawner and the castle
-        WaveManager.Spawners.Remove(this); //destroy the spawner
         WaveManager.Spawners.Add(new Spawner()); //create a new spawner
+        WaveManager.Spawners.Remove(this); //destroy the spawner
         return shortestPath; //shortest path will be empty
     }
 
-    private static void CheckConnections(Point currentPoint, Point endPoint, ref List<Point> unvisited, ref List<Point> visited, ref Dictionary<Point, Point> parentPoints, ref Dictionary<Point, float> gScore, ref Dictionary<Point, float> fScore)
+    private void CheckConnections(Point currentPoint, Point endPoint, ref List<Point> unvisited, ref List<Point> visited, ref Dictionary<Point, Point> parentPoints, ref Dictionary<Point, float> gScore, ref Dictionary<Point, float> fScore)
     {
         //check each point that is adjacent to the current point
         List<Point> directions = new List<Point> {new(0, 1), new(1, 0), new(0, -1), new(-1, 0), new(1, 1), new(1, -1), new(-1, 1), new(-1, -1)};
@@ -138,7 +138,7 @@ internal class Spawner
         }
     }
 
-    private static void CheckConnection(Point connection, Point parent, Point endPoint, ref List<Point> unvisited, ref Dictionary<Point, Point> parentPoints, ref Dictionary<Point, float> gScore, ref Dictionary<Point, float> fScore)
+    private void CheckConnection(Point connection, Point parent, Point endPoint, ref List<Point> unvisited, ref Dictionary<Point, Point> parentPoints, ref Dictionary<Point, float> gScore, ref Dictionary<Point, float> fScore)
     {
         float cost = OctileDistance(parent, connection); //get cost to move from the current point to the connected point
         if (!gScore.ContainsKey(connection))
@@ -167,7 +167,7 @@ internal class Spawner
         float distance = dx + dy + (float)(Math.Sqrt(2) - 2) * Math.Min(dx, dy);
         
         //get difference in heights between points, height difference has a greater influence on the heuristic than the cost
-        float heightDifference = (MapGenerator.NoiseMap[endPoint.X, endPoint.Y] - MapGenerator.NoiseMap[currentPoint.X, currentPoint.Y]) * (heuristic ? 100 : 50);
+        float heightDifference = (MapGenerator.NoiseMap[endPoint.X, endPoint.Y] - MapGenerator.NoiseMap[currentPoint.X, currentPoint.Y]) * (heuristic ? 100f : 50);
 
         return distance + heightDifference;
     }
@@ -228,7 +228,7 @@ internal class Spawner
         if (!_generatePath.IsCompleted) return;
         
         Main.SpriteBatch.Draw(_frames[_currentFrame], _position.ToVector2(), null, Color.White, 0f, _frames[_currentFrame].Bounds.Center.ToVector2(), 1f, SpriteEffects.None, 0f);
-        //foreach (Point point in _visited) Main.SpriteBatch.Draw(WaveManager.Pixel, point.ToVector2(), new Color(Color.DarkOrange, 100));
+        //foreach (Point point in _visited) Main.SpriteBatch.Draw(WaveManager.Pixel, point.ToVector2(), new Color(Color.DarkOrange, 10));
         foreach (Point point in _shortestPath) Main.SpriteBatch.Draw(WaveManager.Pixel, point.ToVector2(), Color.SaddleBrown);
     }
 }

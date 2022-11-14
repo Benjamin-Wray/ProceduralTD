@@ -133,18 +133,19 @@ internal abstract class Tower
         if (!Camera.CameraTarget.Bounds.Contains(WindowManager.GetMouseInRectangle(WindowManager.Scene.Bounds))) return; //only draw the tower if the mouse is on the map
         
         Color tint = new Color(CanBePlaced ? Ui.CanBuyColour : Ui.CannotBuyColour, 200); //set the tint of the sprite to show if the tower can be placed
-        DrawToMap(tint);
+        DrawToMap(tint, true);
     }
 
-    internal virtual void DrawToMap(Color drawColour = default)
+    internal virtual void DrawToMap(Color drawColour = default, bool selected = false)
     {
         if (drawColour == default) drawColour = Color.White;
+        float layerOffset = selected ? 0f : .5f;
         Vector2 drawPosition = Position.ToVector2() * Camera.CameraScale;
-        
+
         //draw textures to map, top textures should always be drawn above base textures
         if (Ui.SelectedOption != null && _rangeIndicator != null) Main.SpriteBatch.Draw(_rangeIndicator, drawPosition, null, _rangeIndicatorColour, 0f, _rangeIndicator.Bounds.Center.ToVector2(), Camera.CameraScale, SpriteEffects.None, 1f);
-        Main.SpriteBatch.Draw(BaseTexture, drawPosition, null, drawColour, 0f, BaseTexture.Bounds.Center.ToVector2(), Camera.CameraScale, SpriteEffects.None, .5f); //draw base texture
-        if (TopTexture != null) Main.SpriteBatch.Draw(TopTexture, drawPosition, null, drawColour, _topAngle, TopTexture.Bounds.Center.ToVector2(), Camera.CameraScale, SpriteEffects.None, 0f); //draw top texture
+        Main.SpriteBatch.Draw(BaseTexture, drawPosition, null, drawColour, 0f, BaseTexture.Bounds.Center.ToVector2(), Camera.CameraScale, SpriteEffects.None, .1f + layerOffset); //draw base texture
+        if (TopTexture != null) Main.SpriteBatch.Draw(TopTexture, drawPosition, null, drawColour, _topAngle, TopTexture.Bounds.Center.ToVector2(), Camera.CameraScale, SpriteEffects.None, 0f + layerOffset); //draw top texture
     }
 
     internal virtual void PlaceTower(ref List<Tower> towers)
@@ -239,7 +240,7 @@ internal class Castle : Tower
         //castles do not have range so we ignore this subroutine
     }
     
-    internal override void DrawToMap(Color drawColour = default)
+    internal override void DrawToMap(Color drawColour = default, bool selected = false)
     {
         if (drawColour == default) drawColour = Color.White;
         Vector2 drawPosition = Position.ToVector2() * Camera.CameraScale;
