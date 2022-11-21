@@ -75,7 +75,7 @@ internal class Spawner
         
         _position = newPosition;
         
-        Tower.UpdateSpaceValidity(true, texture, _position, topLeftPosition);
+        Tower.UpdateSpaceValidity(true, texture, topLeftPosition);
     }
 
     private void FindShortestPath() => _shortestPath = AStarSearch(_position, TowerManager.Castle.Position); //calculates the shortest path between the spawner and the castle

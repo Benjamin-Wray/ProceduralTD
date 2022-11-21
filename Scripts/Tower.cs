@@ -59,22 +59,23 @@ internal abstract class Tower
         _upgradePrice = (int)(BuyPrice * UpgradePriceMultiplier);
     }
 
-    protected void UpdateTowerSpaceValidity(bool newValue) => UpdateSpaceValidity(newValue, BaseTexture, Position, _topLeftPosition, this is Castle);
+    protected void UpdateTowerSpaceValidity(bool newValue) => UpdateSpaceValidity(newValue, BaseTexture, _topLeftPosition);
 
-    internal static void UpdateSpaceValidity(bool newValue, Texture2D? texture, Point position, Point topLeftPosition, bool isCastle = false)
+    internal static void UpdateSpaceValidity(bool newValue, Texture2D? texture, Point topLeftPosition)
     {
-        //iterates through the square of the grid the tower is in
-        for (int y = 0; y < texture.Height; y++)
+        //get array of texture colours
+        Color[] textureColours = new Color[texture.Width * texture.Height];
+        texture.GetData(textureColours);
+        
+        //iterates through the texture's colours
+        for (int i = 0; i < textureColours.Length; i++)
         {
-            for (int x = 0; x < texture.Width; x++)
+            //ignores anything outside of the radius the base texture
+            if (textureColours[i] != Color.Transparent)
             {
-                Point setPosition = topLeftPosition + new Point(x, y);
-                //ignores anything outside of the radius of the base unless it is the castle
-                if (IsInRadius(setPosition, position, texture.Width / 2f) || isCastle)
-                {
-                    //sets the position in the invalid positions list to true if the tower is being placed or false if it is being sold
-                    TowerManager.InvalidPositions[setPosition.X, setPosition.Y] = newValue;
-                }
+                //sets the position in the invalid positions list to true if the tower is being placed or false if it is being sold
+                Point setPosition = topLeftPosition + new Point(i % texture.Width, i / texture.Width);
+                TowerManager.InvalidPositions[setPosition.X, setPosition.Y] = newValue;
             }
         }
     }
@@ -88,19 +89,19 @@ internal abstract class Tower
             return; //there is no need to check the positions if the player cannot afford to place the tower
         }
         
-        //iterates through the square of the grid the tower is in
-        for (int y = 0; y < BaseTexture.Height; y++)
+        Color[] textureColours = new Color[BaseTexture.Width * BaseTexture.Height];
+        BaseTexture.GetData(textureColours);
+        
+        //iterates through the texture's colours
+        for (int i = 0; i < textureColours.Length; i++)
         {
-            for (int x = 0; x < BaseTexture.Width; x++)
+            //ignores anything outside of the texture
+            if (textureColours[i] != Color.Transparent)
             {
-                Point checkPosition = _topLeftPosition + new Point(x, y);
-                //ignores anything outside of the radius of the base unless it is the castle
-                if (IsInRadius(checkPosition, Position, BaseTexture.Width / 2f) || this is Castle)
+                Point checkPosition = _topLeftPosition + new Point(i % BaseTexture.Width, i / BaseTexture.Width);
+                if (TowerManager.InvalidPositions[checkPosition.X, checkPosition.Y])
                 {
-                    if (TowerManager.InvalidPositions[checkPosition.X, checkPosition.Y])
-                    {
-                        CanBePlaced = false; //if tower is on water or another tower, it cannot be placed
-                    }
+                    CanBePlaced = false; //if tower is on water or another tower, it cannot be placed
                 }
             }
         }
