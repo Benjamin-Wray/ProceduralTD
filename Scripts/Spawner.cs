@@ -75,7 +75,7 @@ internal class Spawner
         
         _position = newPosition;
         
-        Tower.UpdateSpaceValidity(true, texture, topLeftPosition);
+        Tower.UpdateSpaceValidity(true, texture, Tower.GetColoursFromTexture(texture), topLeftPosition);
     }
 
     private void FindShortestPath() => _shortestPath = AStarSearch(_position, TowerManager.Castle.Position); //calculates the shortest path between the spawner and the castle
@@ -114,11 +114,8 @@ internal class Spawner
 
             if (_visited.Count >= 10000) break;
         }
-
-        //if program exits the while loop without returning a shortest path, there is no possible path between the spawner and the castle
-        WaveManager.Spawners.Add(new Spawner()); //create a new spawner
-        WaveManager.Spawners.Remove(this); //destroy the spawner
-        return shortestPath; //shortest path will be empty
+        
+        return shortestPath; //if program exits the while loop without returning a shortest path, there is no possible path between the spawner and the castle
     }
 
     private void CheckConnections(Point currentPoint, Point endPoint, ref List<Point> unvisited, ref List<Point> visited, ref Dictionary<Point, Point> parentPoints, ref Dictionary<Point, float> gScore, ref Dictionary<Point, float> fScore)
@@ -184,6 +181,12 @@ internal class Spawner
     
     internal void Update(GameTime gameTime)
     {
+        if (_generatePath.IsCompleted && _shortestPath.Count == 0) //if a shortest path was not found
+        {
+            WaveManager.Spawners.Add(new Spawner()); //create a new spawner
+            WaveManager.Spawners.Remove(this); //destroy the spawner
+        }
+        
         //only spawn attackers when every spawner's path has been completed, this means the spawners will begin spawning attackers at the same time
         if (WaveManager.Spawners.All(x => x._generatePath.IsCompleted)) SpawnAttacker(gameTime);
         

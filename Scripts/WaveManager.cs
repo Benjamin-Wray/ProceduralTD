@@ -44,7 +44,7 @@ public static class WaveManager
             Main.ContentManager.Load<Texture2D>("images/map/bubbles/bubble_purple")
         };
         
-        PortalFrames = new Texture2D?[]
+        PortalFrames = new[]
         {
             Main.ContentManager.Load<Texture2D>("images/map/portal/portal1"),
             Main.ContentManager.Load<Texture2D>("images/map/portal/portal2"),

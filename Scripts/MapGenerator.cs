@@ -33,6 +33,8 @@ namespace ProceduralTD
         private const float Persistence = .5f; //this is multiplied by the amplitude of the noise every octave
         internal const float WaterLevel = .4f;
 
+        internal static Task GenerateMap;
+
         internal static void GenerateNoiseMap()
         {
             //creates a permutation table from seed
@@ -52,8 +54,6 @@ namespace ProceduralTD
             
             NoiseMap = NormalizeMap(NoiseMap);
             Camera.GenerateMapTexture();
-
-            StateMachine.ChangeState(StateMachine.Action.BeginGame);
         }
 
         private static int[] GeneratePermutationTable(int seed)

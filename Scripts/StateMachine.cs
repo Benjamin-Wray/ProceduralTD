@@ -49,7 +49,7 @@ internal static class StateMachine
                 break;
             case (State.Title, Action.LoadMap):
                 CurrentState = State.LoadingMap;
-                Task.Run(MapGenerator.GenerateNoiseMap); //generates the map asynchronously so the user can still move their mouse, resize the window, etc while the map loads
+                MapGenerator.GenerateMap = Task.Run(MapGenerator.GenerateNoiseMap); //generates the map asynchronously so the user can still move their mouse, resize the window, etc while the map loads
                 break;
             case (State.LoadingMap, Action.BeginGame):
                 CurrentState = State.PlaceCastle;
@@ -96,6 +96,7 @@ internal static class StateMachine
                 break;
             case State.LoadingMap:
                 TitleScreen.PlayLoadingAnimation(gameTime);
+                if (MapGenerator.GenerateMap.IsCompleted) ChangeState(Action.BeginGame);
                 break;
             case State.PlaceCastle:
                 Camera.Update(gameTime);

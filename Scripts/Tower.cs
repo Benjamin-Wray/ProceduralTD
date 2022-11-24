@@ -10,6 +10,7 @@ internal abstract class Tower
 {
     //textures
     internal Texture2D? BaseTexture; //every tower has a base texture
+    private Color[] _baseTextureColours; //array of colours for the base texture
     internal Texture2D? TopTexture; //top part that rotates to point to nearest enemy
 
     //position of the tower
@@ -57,16 +58,21 @@ internal abstract class Tower
     {
         SellPrice = (int)(BuyPrice * SellPriceMultiplier);
         _upgradePrice = (int)(BuyPrice * UpgradePriceMultiplier);
+        _baseTextureColours = GetColoursFromTexture(BaseTexture);
     }
 
-    protected void UpdateTowerSpaceValidity(bool newValue) => UpdateSpaceValidity(newValue, BaseTexture, _topLeftPosition);
-
-    internal static void UpdateSpaceValidity(bool newValue, Texture2D? texture, Point topLeftPosition)
+    internal static Color[] GetColoursFromTexture(Texture2D texture)
     {
         //get array of texture colours
-        Color[] textureColours = new Color[texture.Width * texture.Height];
-        texture.GetData(textureColours);
-        
+        Color[] colours = new Color[texture.Width * texture.Height];
+        texture.GetData(colours);
+        return colours;
+    }
+
+    protected void UpdateTowerSpaceValidity(bool newValue) => UpdateSpaceValidity(newValue, BaseTexture, _baseTextureColours, _topLeftPosition);
+
+    internal static void UpdateSpaceValidity(bool newValue, Texture2D? texture, Color[] textureColours, Point topLeftPosition)
+    {
         //iterates through the texture's colours
         for (int i = 0; i < textureColours.Length; i++)
         {
@@ -88,15 +94,12 @@ internal abstract class Tower
             CanBePlaced = false; //if the player cannot afford the tower, it cannot be placed
             return; //there is no need to check the positions if the player cannot afford to place the tower
         }
-        
-        Color[] textureColours = new Color[BaseTexture.Width * BaseTexture.Height];
-        BaseTexture.GetData(textureColours);
-        
+
         //iterates through the texture's colours
-        for (int i = 0; i < textureColours.Length; i++)
+        for (int i = 0; i < _baseTextureColours.Length; i++)
         {
             //ignores anything outside of the texture
-            if (textureColours[i] != Color.Transparent)
+            if (_baseTextureColours[i] != Color.Transparent)
             {
                 Point checkPosition = _topLeftPosition + new Point(i % BaseTexture.Width, i / BaseTexture.Width);
                 if (TowerManager.InvalidPositions[checkPosition.X, checkPosition.Y])
