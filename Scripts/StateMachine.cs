@@ -7,16 +7,15 @@ internal static class StateMachine
 {
     internal enum State
     {
-        InitialState,
+        StartUp,
         Title,
         LoadingMap,
         PlaceCastle,
         Wave,
-        GameOver,
-        StartUp
+        GameOver
     }
 
-    internal enum Action
+    internal enum Transition
     {
         StartProgram,
         LoadMap,
@@ -28,39 +27,38 @@ internal static class StateMachine
 
     //the state machine's current state
     //other classes can read it but not directly assign it
-    //other classes can only change the state machine's state by passing an action into the ChangeState subroutine
-    internal static State CurrentState { get; private set; } = State.InitialState;
+    //other classes can only change the state machine's state by passing an transition into the ChangeState subroutine
+    internal static State CurrentState { get; private set; } = State.StartUp;
 
     //used to change the current state
-    //an action is input to the state machine and the state will change depending on the action and current state
-    internal static void ChangeState(Action action)
+    //an transition is input to the state machine and the state will change depending on the transition and current state
+    internal static void ChangeState(Transition transition)
     {
-        switch (CurrentState, action)
+        switch (CurrentState, transition)
         {
-            case (State.InitialState, Action.StartProgram):
-                CurrentState = State.StartUp;
+            case (State.StartUp, Transition.StartProgram): //sets up window manager before switching to title screen
                 WindowManager.Initialize();
-                ChangeState(Action.GoToTitle);
+                ChangeState(Transition.GoToTitle);
                 break;
-            case (State.StartUp, Action.GoToTitle):
-            case (State.GameOver, Action.GoToTitle):
+            case (State.StartUp, Transition.GoToTitle): //switches to title from starting up the game
+            case (State.GameOver, Transition.GoToTitle): //switches to title from game over screen
                 CurrentState = State.Title;
                 TitleScreen.Initialize();
                 break;
-            case (State.Title, Action.LoadMap):
+            case (State.Title, Transition.LoadMap): //loads the map
                 CurrentState = State.LoadingMap;
                 MapGenerator.GenerateMap = Task.Run(MapGenerator.GenerateNoiseMap); //generates the map asynchronously so the user can still move their mouse, resize the window, etc while the map loads
                 break;
-            case (State.LoadingMap, Action.BeginGame):
+            case (State.LoadingMap, Transition.BeginGame): //switches to main screen no map has loaded
                 CurrentState = State.PlaceCastle;
                 WaveManager.Initialize();
                 TowerManager.Initialize();
                 break;
-            case (State.PlaceCastle, Action.PlaceCastle):
+            case (State.PlaceCastle, Transition.PlaceCastle): //starts adding spawners
                 CurrentState = State.Wave;
                 WaveManager.StartWaves();
                 break;
-            case (State.Wave, Action.EndGame):
+            case (State.Wave, Transition.EndGame): //switches to game over screen
                 CurrentState = State.GameOver;
                 GameOverScreen.Initialize();
                 break;
@@ -70,7 +68,7 @@ internal static class StateMachine
     //runs at the start of the program
     internal static void Initialize()
     {
-        ChangeState(Action.StartProgram); //sets the current state to it's initial state: the title screen
+        ChangeState(Transition.StartProgram); //sets the current state to it's initial state: the title screen
     }
 
     //loads all of the textures to be drawn
@@ -96,7 +94,7 @@ internal static class StateMachine
                 break;
             case State.LoadingMap:
                 TitleScreen.PlayLoadingAnimation(gameTime);
-                if (MapGenerator.GenerateMap.IsCompleted) ChangeState(Action.BeginGame);
+                if (MapGenerator.GenerateMap.IsCompleted) ChangeState(Transition.BeginGame);
                 break;
             case State.PlaceCastle:
                 Camera.Update(gameTime);

@@ -159,7 +159,7 @@ public static class TitleScreen
     private static void LoadMap()
     {
         MapGenerator.Seed = _seed == "" ? new Random().Next(0, (int)Math.Pow(10, MaxSeedLength)) : Convert.ToInt32(_seed); //generates a random seed if the user left the input box blank
-        StateMachine.ChangeState(StateMachine.Action.LoadMap);
+        StateMachine.ChangeState(StateMachine.Transition.LoadMap);
     }
     
     internal static void PlayLoadingAnimation(GameTime gameTime)

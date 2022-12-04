@@ -78,7 +78,7 @@ public static class GameOverScreen
     internal static void Update()
     {
         //if yes button is pressed, go back to the title screen
-        if (TitleScreen.UpdateButton(_yesRectangle, ref _isYesButtonDown, ref _yesButtonIndex)) StateMachine.ChangeState(StateMachine.Action.GoToTitle);
+        if (TitleScreen.UpdateButton(_yesRectangle, ref _isYesButtonDown, ref _yesButtonIndex)) StateMachine.ChangeState(StateMachine.Transition.GoToTitle);
         
         //if no button is pressed, close the game
         if (TitleScreen.UpdateButton(_noRectangle, ref _isNoButtonDown, ref _noButtonIndex)) Program.Game.Exit();

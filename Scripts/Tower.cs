@@ -236,7 +236,7 @@ internal class Castle : Tower
         TowerManager.Castle = this; //place castle
         UpdateTowerSpaceValidity(true);
         TowerManager.SelectedTower = null; //stop placing castle
-        StateMachine.ChangeState(StateMachine.Action.PlaceCastle); //update the machine state to allow the player to place other towers
+        StateMachine.ChangeState(StateMachine.Transition.PlaceCastle); //update the machine state to allow the player to place other towers
     }
 
     protected override void UpdateRange()

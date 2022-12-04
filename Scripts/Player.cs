@@ -27,7 +27,7 @@ internal static class Player
             _health = Math.Clamp(value, 0, StartingHealth); //prevents health from being negative
             if (_health == 0)
             {
-                StateMachine.ChangeState(StateMachine.Action.EndGame); //when the player's health reaches zero, the game ends
+                StateMachine.ChangeState(StateMachine.Transition.EndGame); //when the player's health reaches zero, the game ends
             }
         }
     }

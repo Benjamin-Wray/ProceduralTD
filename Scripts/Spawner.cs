@@ -138,19 +138,20 @@ internal class Spawner
     private void CheckConnection(Point connection, Point parent, Point endPoint, ref List<Point> unvisited, ref Dictionary<Point, Point> parentPoints, ref Dictionary<Point, float> gScore, ref Dictionary<Point, float> fScore)
     {
         float cost = OctileDistance(parent, connection); //get cost to move from the current point to the connected point
+        float newGScore = gScore[parent] + cost;
         if (!gScore.ContainsKey(connection))
         {
             //add connected point to parentPoints, gScore and fScore
             parentPoints.Add(connection, parent);
-            gScore.Add(connection, gScore[parent] + cost);
-            fScore.Add(connection, gScore[parent] + OctileDistance(parent, endPoint));
+            gScore.Add(connection, newGScore);
+            fScore.Add(connection, newGScore + OctileDistance(parent, endPoint));
         }
         else if (gScore[parent] + cost < gScore[connection])
         {
             //replace parentPoints, gScore and fScore with new values
             parentPoints[connection] = parent;
-            gScore[connection] = gScore[parent] + cost;
-            fScore[connection] = gScore[parent] + OctileDistance(parent, endPoint);
+            gScore[connection] = newGScore;
+            fScore[connection] = newGScore + OctileDistance(parent, endPoint);
         }
 
         if (!unvisited.Contains(connection)) unvisited.Add(connection);
