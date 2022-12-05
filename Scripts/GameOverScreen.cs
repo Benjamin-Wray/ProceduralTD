@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace ProceduralTD;
 
-public static class GameOverScreen
+internal static class GameOverScreen
 {
     private static readonly RenderTarget2D GameOverTarget = new(Main.Graphics.GraphicsDevice, Ui.HudWidth / 2, Ui.HudHeight / 2);
     

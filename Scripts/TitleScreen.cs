@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace ProceduralTD;
 
-public static class TitleScreen
+internal static class TitleScreen
 {
     private static readonly RenderTarget2D TitleTarget = new(Main.Graphics.GraphicsDevice, Ui.HudWidth / 2, Ui.HudHeight / 2);
     

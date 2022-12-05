@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace ProceduralTD;
 
-public static class WindowManager
+internal static class WindowManager
 {
     internal static RenderTarget2D Scene { get; private set; } //the whole game will be drawn to this render target so it can be scaled to any resolution
 

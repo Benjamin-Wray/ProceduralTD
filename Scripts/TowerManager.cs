@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace ProceduralTD;
 
-public static class TowerManager
+internal static class TowerManager
 {
     internal enum MenuOptions
     {

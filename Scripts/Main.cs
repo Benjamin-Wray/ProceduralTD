@@ -11,7 +11,7 @@ namespace ProceduralTD
         internal static ContentManager ContentManager;
         internal static GameWindow GameWindow;
 
-        public Main()
+        internal Main()
         {
             Graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";

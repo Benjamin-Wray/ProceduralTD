@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace ProceduralTD;
 
-public static class WaveManager
+internal static class WaveManager
 {
     internal static int CurrentWave;
 
@@ -60,7 +60,7 @@ public static class WaveManager
         Spawners.Add(new Spawner());
     }
 
-    public static void Update(GameTime gameTime)
+    internal static void Update(GameTime gameTime)
     {
         if (Spawners.All(x => !x.CanSpawn) && Attackers.Count == 0) //if the spawners have finished spawning and there are no more attackers, the wave has ended
         {
@@ -74,7 +74,7 @@ public static class WaveManager
         foreach (Attacker attacker in Attackers.ToArray()) attacker.Update(gameTime);
     }
 
-    public static void Draw()
+    internal static void Draw()
     {
         //draw spawners
         Main.Graphics.GraphicsDevice.SetRenderTarget(SpawnerTarget);

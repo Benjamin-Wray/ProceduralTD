@@ -2,7 +2,7 @@
 
 namespace ProceduralTD
 {
-    public static class Program
+    internal static class Program
     {
         internal static Main Game;
         
