@@ -38,7 +38,7 @@ internal static class TitleScreen
 
     private static bool _isStartButtonDown; //tells the program if the start button is currently down
 
-    private static string _seed = ""; //stores the seed used for map generation
+    private static Stack<char> _seed; //stores the seed used for map generation
     private const int MaxSeedLength = 8; //the maximum number of digits for the seed
     
     //the keys that can be pressed in order to input numbers into the seed input box
@@ -68,7 +68,7 @@ internal static class TitleScreen
         foreach (Keys key in IsKeyDown.Keys.ToArray()) IsKeyDown[key] = false;
         _loadingIndex = 0;
         _timer = 0;
-        _seed = "";
+        _seed = new Stack<char>();
     }
     
     internal static void LoadContent()
@@ -107,9 +107,9 @@ internal static class TitleScreen
         //keyboard input
         KeyboardState keyboardState = Keyboard.GetState();
 
-        if (keyboardState.IsKeyDown(Keys.Back) && _seed.Length > 0 && !_isBackspaceDown) //if backspace has been pressed while the seed box is not empty
+        if (keyboardState.IsKeyDown(Keys.Back) && _seed.Count > 0 && !_isBackspaceDown) //if backspace has been pressed while the seed box is not empty
         {
-            _seed = _seed[..^1]; //removes the number at the end of the seed input
+            _seed.Pop(); //removes the number at the end of the seed input
             _isBackspaceDown = true; //prevents the action from being triggered again until the key has been released
         }
         else if (keyboardState.IsKeyUp(Keys.Back) && _isBackspaceDown) _isBackspaceDown = false; //tells the program the key has been released
@@ -117,9 +117,9 @@ internal static class TitleScreen
         //number input
         foreach (Keys key in NumberKeys.Keys)
         {
-            if (keyboardState.IsKeyDown(key) && _seed.Length < MaxSeedLength && !IsKeyDown[key]) //if a number key was pressed and the seed box is not full
+            if (keyboardState.IsKeyDown(key) && _seed.Count < MaxSeedLength && !IsKeyDown[key]) //if a number key was pressed and the seed box is not full
             {
-                _seed += NumberKeys[key]; //adds the number corresponding to the keypress to the end of the seed
+                _seed.Push(NumberKeys[key]); //adds the number corresponding to the keypress to the end of the seed
                 IsKeyDown[key] = true; //prevents the action for this specific key from being triggered until it is released
             }
             else if (keyboardState.IsKeyUp(key) && IsKeyDown[key]) IsKeyDown[key] = false; //tells the program the key has been released
@@ -156,9 +156,11 @@ internal static class TitleScreen
         return false;
     }
 
+    private static string CharStackToString(IEnumerable<char> stack) => stack.Reverse().Aggregate("", (s, c) => s + c);
+
     private static void LoadMap()
     {
-        MapGenerator.Seed = _seed == "" ? new Random().Next(0, (int)Math.Pow(10, MaxSeedLength)) : Convert.ToInt32(_seed); //generates a random seed if the user left the input box blank
+        MapGenerator.Seed = _seed.Count == 0 ? new Random().Next(0, (int)Math.Pow(10, MaxSeedLength)) : Convert.ToInt32(CharStackToString(_seed)); //generates a random seed if the user left the input box blank
         StateMachine.ChangeState(StateMachine.Transition.LoadMap);
     }
     
@@ -177,7 +179,7 @@ internal static class TitleScreen
         Main.SpriteBatch.Draw(_title, _titlePosition, TitleColour); //draw title
         Main.SpriteBatch.Draw(_startButtonFrames[_startButtonIndex], _startRectangle, Color.White); //draw start button
         Main.SpriteBatch.Draw(_seedBox, _seedBoxPosition, Color.White); //draw seed input box
-        Ui.DrawNumber(_seed, _seedPosition, TextColour); //draw seed in input box if necessary 
+        Ui.DrawNumber(CharStackToString(_seed), _seedPosition, TextColour); //draw seed in input box if necessary 
         if (StateMachine.CurrentState == StateMachine.State.LoadingMap) Main.SpriteBatch.Draw(_loadingFrames[_loadingIndex], _loadingPosition, TextColour); //draw loading animation if the map is being generated
         Main.SpriteBatch.End();
     }

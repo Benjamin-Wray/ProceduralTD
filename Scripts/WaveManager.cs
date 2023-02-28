@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -33,7 +34,7 @@ internal static class WaveManager
         //create pixel texture
         Pixel = new Texture2D(Main.Graphics.GraphicsDevice, 1, 1);
         Pixel.SetData(new[] {Color.White});
-        
+
         AttackerColours = new[]
         {
             Main.ContentManager.Load<Texture2D>("images/map/bubbles/bubble_blue"),
