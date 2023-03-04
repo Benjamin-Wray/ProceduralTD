@@ -41,6 +41,7 @@ internal abstract class Tower
     internal static bool CanBePlaced;
 
     private const float UpgradePriceMultiplier = 1f; //used to calculate the upgrade price
+    private const float FireRateMultiplier = 1.5f; //used to calculate the new fire rate after an upgrade
     private const float SellPriceMultiplier = 0.5f; //used to calculate the sell price
     internal int BuyPrice; //price of the tower
     private int _upgradePrice; //Price to upgrade the tower
@@ -175,7 +176,7 @@ internal abstract class Tower
     internal virtual void Upgrade()
     {
         if (Player.Money < _upgradePrice) return; //only upgrades if the player has enough money
-        TimeToFire /= 2;
+        TimeToFire /= FireRateMultiplier; //reduce the time to fire by the fire rate multiplier
         SellPrice += _upgradePrice / 2;
         Player.Money -= _upgradePrice;
         _upgradePrice *= 2;

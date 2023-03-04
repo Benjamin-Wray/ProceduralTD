@@ -1,0 +1,77 @@
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\MonoGameCross-PlatformDesktopApplication1.exe
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\MonoGameCross-PlatformDesktopApplication1.deps.json
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\MonoGameCross-PlatformDesktopApplication1.runtimeconfig.json
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\MonoGameCross-PlatformDesktopApplication1.dll
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\MonoGameCross-PlatformDesktopApplication1.pdb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\MonoGame.Framework.dll
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\runtimes\linux-x64\native\libSDL2-2.0.so.0
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\runtimes\linux-x64\native\libopenal.so.1
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\runtimes\osx\native\libSDL2.dylib
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\runtimes\osx\native\libopenal.1.dylib
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\runtimes\win-x64\native\SDL2.dll
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\runtimes\win-x64\native\soft_oal.dll
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\runtimes\win-x86\native\SDL2.dll
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\runtimes\win-x86\native\soft_oal.dll
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\obj\Debug\net6.0\MonoGameCross-PlatformDesktopApplication1.csproj.AssemblyReference.cache
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\obj\Debug\net6.0\MonoGameCross-PlatformDesktopApplication1.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\obj\Debug\net6.0\MonoGameCross-PlatformDesktopApplication1.AssemblyInfoInputs.cache
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\obj\Debug\net6.0\MonoGameCross-PlatformDesktopApplication1.AssemblyInfo.cs
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\obj\Debug\net6.0\MonoGameCross-PlatformDesktopApplication1.csproj.CoreCompileInputs.cache
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\obj\Debug\net6.0\MonoGameCross-PlatformDesktopApplication1.csproj.CopyComplete
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\obj\Debug\net6.0\MonoGameCross-PlatformDesktopApplication1.dll
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\obj\Debug\net6.0\refint\MonoGameCross-PlatformDesktopApplication1.dll
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\obj\Debug\net6.0\MonoGameCross-PlatformDesktopApplication1.pdb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\obj\Debug\net6.0\MonoGameCross-PlatformDesktopApplication1.genruntimeconfig.cache
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\obj\Debug\net6.0\ref\MonoGameCross-PlatformDesktopApplication1.dll
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\cursor.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\game over\game over.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\game over\no button\no button1.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\game over\no button\no button2.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\game over\no button\no button3.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\game over\play again.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\game over\yes button\yes button1.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\game over\yes button\yes button2.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\game over\yes button\yes button3.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\map\bubbles\bubble_blue.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\map\bubbles\bubble_green.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\map\bubbles\bubble_orange.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\map\bubbles\bubble_purple.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\map\bubbles\bubble_red.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\map\bubbles\bubble_yellow.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\map\castle.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\map\portal\portal1.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\map\portal\portal2.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\map\portal\portal3.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\map\portal\portal4.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\title\loading\loading1.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\title\loading\loading2.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\title\loading\loading3.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\title\loading\loading4.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\title\seed.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\title\start\start1.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\title\start\start2.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\title\start\start3.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\title\title.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\ui\button_background.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\ui\icons\coin.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\ui\icons\heart.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\ui\text\digits\0.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\ui\text\digits\1.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\ui\text\digits\2.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\ui\text\digits\3.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\ui\text\digits\4.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\ui\text\digits\5.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\ui\text\digits\6.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\ui\text\digits\7.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\ui\text\digits\8.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\ui\text\digits\9.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\ui\text\digits\£.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\ui\text\wave.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\ui\towers\cannon_base.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\ui\towers\cannon_top.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\ui\towers\landmine.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\ui\towers\nailgun.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\ui\towers\sniper_base.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\ui\towers\sniper_top.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\ui\utilities\sell.xnb
+C:\Users\benwr\Documents\Programs\MonoGame\MonoGameCross-PlatformDesktopApplication1\bin\Debug\net6.0\Content\images\ui\utilities\upgrade.xnb
