@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SourceFileCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Profile>Reach</Profile>
+  <Platform>DesktopGL</Platform>
+  <Config />
+  <SourceFiles>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/cursor.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/game over/game over.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/game over/no button/no button1.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/game over/no button/no button2.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/game over/no button/no button3.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/game over/play again.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/game over/yes button/yes button1.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/game over/yes button/yes button2.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/game over/yes button/yes button3.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/map/bubbles/bubble_blue.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/map/bubbles/bubble_green.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/map/bubbles/bubble_orange.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/map/bubbles/bubble_purple.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/map/bubbles/bubble_red.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/map/bubbles/bubble_yellow.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/map/castle.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/map/portal/portal1.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/map/portal/portal2.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/map/portal/portal3.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/map/portal/portal4.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/title/loading/loading1.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/title/loading/loading2.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/title/loading/loading3.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/title/loading/loading4.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/title/seed.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/title/start/start1.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/title/start/start2.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/title/start/start3.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/title/title.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/ui/button_background.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/ui/icons/coin.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/ui/icons/heart.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/ui/text/digits/£.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/ui/text/digits/0.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/ui/text/digits/1.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/ui/text/digits/2.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/ui/text/digits/3.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/ui/text/digits/4.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/ui/text/digits/5.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/ui/text/digits/6.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/ui/text/digits/7.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/ui/text/digits/8.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/ui/text/digits/9.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/ui/text/wave.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/ui/towers/cannon_base.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/ui/towers/cannon_top.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/ui/towers/landmine.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/ui/towers/nailgun.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/ui/towers/sniper_base.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/ui/towers/sniper_top.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/ui/utilities/sell.png</File>
+    <File>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_old/Content/images/ui/utilities/upgrade.png</File>
+  </SourceFiles>
+  <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+  </DestFiles>
+</SourceFileCollection>
