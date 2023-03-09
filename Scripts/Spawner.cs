@@ -146,7 +146,7 @@ internal class Spawner
             gScore.Add(connection, newGScore);
             fScore.Add(connection, newGScore + OctileDistance(parent, endPoint));
         }
-        else if (gScore[parent] + cost < gScore[connection])
+        else if (newGScore < gScore[connection])
         {
             //replace parentPoints, gScore and fScore with new values
             parentPoints[connection] = parent;
@@ -223,7 +223,7 @@ internal class Spawner
 
         int hp = 1;
         while (hp <= maxHp) _attackersToSpawn.Add(new[] {hp++, number}); //add attackers to list
-        
+
         CanSpawn = true;
     }
     

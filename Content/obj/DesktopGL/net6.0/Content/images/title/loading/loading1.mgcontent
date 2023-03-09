@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_test/Content/images/title/loading/loading1.png</SourceFile>
-  <SourceTime>2023-03-04T18:06:26.2614986+00:00</SourceTime>
-  <DestFile>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD_test/Content/bin/DesktopGL/Content/images/title/loading/loading1.xnb</DestFile>
-  <DestTime>2023-03-04T18:06:44.318047+00:00</DestTime>
+  <SourceFile>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD/Content/images/title/loading/loading1.png</SourceFile>
+  <SourceTime>2023-03-04T16:48:59.8105743+00:00</SourceTime>
+  <DestFile>C:/Users/benwr/Documents/Programs/MonoGame/ProceduralTD/Content/bin/DesktopGL/Content/images/title/loading/loading1.xnb</DestFile>
+  <DestTime>2023-03-04T18:24:03.4812607+00:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2022-07-26T12:44:56+01:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

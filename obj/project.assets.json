@@ -107,11 +107,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\benwr\\Documents\\Programs\\MonoGame\\ProceduralTD_test\\ProceduralTD.csproj",
+      "projectUniqueName": "C:\\Users\\benwr\\Documents\\Programs\\MonoGame\\ProceduralTD\\ProceduralTD.csproj",
       "projectName": "ProceduralTD",
-      "projectPath": "C:\\Users\\benwr\\Documents\\Programs\\MonoGame\\ProceduralTD_test\\ProceduralTD.csproj",
+      "projectPath": "C:\\Users\\benwr\\Documents\\Programs\\MonoGame\\ProceduralTD\\ProceduralTD.csproj",
       "packagesPath": "C:\\Users\\benwr\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\benwr\\Documents\\Programs\\MonoGame\\ProceduralTD_test\\obj\\",
+      "outputPath": "C:\\Users\\benwr\\Documents\\Programs\\MonoGame\\ProceduralTD\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\benwr\\AppData\\Roaming\\NuGet\\NuGet.Config",

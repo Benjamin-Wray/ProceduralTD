@@ -66,10 +66,7 @@ internal static class StateMachine
     }
 
     //runs at the start of the program
-    internal static void Initialize()
-    {
-        ChangeState(Transition.StartProgram); //sets the current state to it's initial state: the title screen
-    }
+    internal static void Initialize() => ChangeState(Transition.StartProgram); //sets the current state to it's initial state: the title screen
 
     //loads all of the textures to be drawn
     internal static void LoadContent()

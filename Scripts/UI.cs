@@ -148,10 +148,10 @@ internal static class Ui
 
     internal static void Update()
     {
-        if (Camera.CameraTarget.Bounds.Contains(WindowManager.GetMouseInRectangle(WindowManager.Scene.Bounds))) //if the mouse is not on the map
+        if (Camera.CameraTarget.Bounds.Contains(WindowManager.GetMouseInRectangle(WindowManager.Scene.Bounds))) //if the mouse is on the map
         {
             if (SelectedOption < 4 || !_selectedOption.HasValue) CursorPrice = null; //don't draw price by cursor unless hovering over button
-            return; //stop mouse input while mouse is not on map
+            return; //stop mouse input while mouse is on the map
         }
         
         //set hover and cursor price to null at the start of each frame so the hover frame is removed when the mouse is not over a button
